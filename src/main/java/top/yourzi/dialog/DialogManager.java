@@ -526,12 +526,6 @@ public class DialogManager {
         if (currentSequence == null || currentEntry == null) {
             return;
         }
-        
-        // 在跳转到下一个对话前，执行当前对话条目的命令
-        if (currentEntry.getCommand() != null && !currentEntry.getCommand().isEmpty()) {
-            executeCommands(Minecraft.getInstance().player, currentEntry.getCommands());
-        }
-        
         // 检查当前对话条目是否设置了结束对话标记
         if (currentEntry.isEndDialog()) {
             // 强制结束对话，关闭对话界面

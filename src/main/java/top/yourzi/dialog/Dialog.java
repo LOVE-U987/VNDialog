@@ -35,7 +35,7 @@ public class Dialog {
     
     private void onCommonSetup(final FMLCommonSetupEvent event) {
         // 初始化网络处理器
-        event.enqueueWork(top.yourzi.dialog.network.NetworkHandler::init);
+        event.enqueueWork(top.yourzi.dialog.network.NetworkHandler::init); 
     }
     
     private void onClientSetup(final FMLClientSetupEvent event) {
