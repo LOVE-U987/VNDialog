@@ -57,7 +57,6 @@
 ```json
 {
   "hello": {
-    "category": "hello",
     "sounds": [
       {
         "name": "dialog:hello",
