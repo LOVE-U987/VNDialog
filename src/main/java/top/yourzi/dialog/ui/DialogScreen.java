@@ -758,6 +758,10 @@ public class DialogScreen extends Screen {
                     fastForwardCooldown--;
                 } else {
                     DialogManager.setFastForwardingNext(true);
+                    // 执行当前对话条目的指令（如果存在）
+                    if (dialogEntry.getCommand() != null && !dialogEntry.getCommand().isEmpty()) {
+                        DialogManager.getInstance().executeCommands(this.getMinecraft().player, dialogEntry.getCommands());
+                    }
                     DialogManager.getInstance().showNextDialog();
                     return; // 立即跳到下一条，避免渲染当前帧的剩余部分
                 }
