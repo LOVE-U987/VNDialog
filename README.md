@@ -80,6 +80,7 @@
   "title": "Your Dialog Title",
   "description": "A brief description of your dialog.",
   "start": "entry_id_to_start_with",
+  "allowClose": false,
   "entries": [
     // ... 对话条目列表 ...
   ]
@@ -94,6 +95,8 @@
   - 对话的简短描述。主要用于开发者理解对话内容，不在游戏中显示。
 - **`start` (必需)**: `String`
   - 指定对话开始时显示的第一个条目的 `id`。
+- **`allowClose` (可选)**: `Boolean`
+  - 是否允许玩家通过ESC键关闭对话，默认为false。当设置为true时，按ESC键会执行所有后续条目的指令后关闭对话；当设置为false时，ESC键无法关闭对话。
 - **`entries` (必需)**:
   - 一个包含所有对话条目对象的数组。每个条目代表对话中的一个界面。
 
@@ -101,28 +104,13 @@
 
 每个对话条目定义了对话中的一个片段，包括谁在说话、说什么、显示什么立绘等。没有特殊要求的情况下会按顺序播放。
 
-#### 🚫 跳过控制
-
-你可以通过以下方式控制对话的跳过行为：
-
-1. **服务端配置**：在服务端配置文件中设置 `allowSkipDialog` 为 `false` 可以全局禁止玩家跳过对话
-2. **对话条目配置**：在单个对话条目中设置 `"allowSkip": false` 可以禁止跳过该条对话
-
-只有当服务端配置允许跳过且对话条目允许跳过时，玩家才能使用Ctrl键跳过对话。
-
-#### 🔚 对话结束控制
-
-可以通过 `endDialog` 字段控制对话是否在当前条目播放完毕后结束：
-
-- `endDialog: true` - 此条对话播放完毕后结束整个对话，不继续播放后续对话
-- `endDialog: false` 或未设置 - 正常继续播放后续对话
-
 ```json
 {
   "id": "unique_entry_id",
   "speaker": "Speaker Name",
   "text": "Dialog text.",
   "next": "entry_id_to_go_to_after_this_entry",
+  "endDialog": false,
   "allowSkip": false,
   "command": [
     //... 指令列表...
@@ -150,6 +138,10 @@
   - 对话的主要内容。可以是普通字符串或文本组件。
 - **`next` (可选)**: `String`
   - 当玩家完成此条目的对话后，对话将跳转到的下一个条目的 `id`。
+- **`endDialog` (可选)**: `Boolean`
+  - 对话是否在当前条目播放完毕后结束，默认为false.
+- **`allowSkip` (可选)**: `Boolean`
+  - 对话是否允许玩家按Ctrl键跳过，默认为true.
 - **`command` (可选)**:
   - 一个字符串或字符串数组，包含Minecraft指令（不需要前导 `/`）。这些指令会在该对话条目播放完成时，以发起对话的玩家的身份（忽略原本权限，强制以OP权限）执行。支持单个字符串格式或字符串数组格式。
 - **`portraits` (可选)**: 
@@ -161,6 +153,15 @@
 - **`background_image` (可选)**:
   - 定义此条目显示的背景图片。
 
+#### 🚫 跳过控制
+
+你可以通过以下方式控制对话的跳过行为：
+
+1. **服务端配置**：在服务端配置文件中设置 `allowSkipDialog` 为 `false` 可以全局禁止玩家跳过对话
+2. **对话条目配置**：在单个对话条目中设置 `"allowSkip": false` 可以禁止跳过该条对话
+
+只有当服务端配置允许跳过且对话条目允许跳过时，玩家才能使用Ctrl键跳过对话。
+
 ### 🎨 立绘
 
 立绘对象定义了如何在对话界面中显示角色图片。
@@ -170,7 +171,8 @@
   "path": "character_sprite.png",
   "position": "LEFT",
   "brightness": 1.0,
-  "animationType": "FADE_IN"
+  "animationType": "FADE_IN",
+  "size": 1.0
 }
 ```
 
@@ -191,6 +193,10 @@
     - `"FADE_IN"`: 淡入效果。
     - `"SLIDE_IN_FROM_BOTTOM"`: 从下方滑入。
     - `"BOUNCE"`: 弹跳（模拟角色受惊吓的效果）。
+- **`size` (可选, 默认为 `1.0`)**: `Number`
+  - 立绘的缩放大小。范围从 `0.0` 到 `5.0`。
+  - `1.0` 表示正常大小，`0.5` 表示缩小到一半，`2.0` 表示放大到两倍。
+  - 用于控制立绘在屏幕上的显示尺寸。
 
 ### ❓ 对话选项
 

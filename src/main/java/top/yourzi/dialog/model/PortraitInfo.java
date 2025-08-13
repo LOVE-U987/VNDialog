@@ -19,6 +19,9 @@ public class PortraitInfo {
     @SerializedName("animationType")
     private PortraitAnimationType animationType = PortraitAnimationType.NONE; //动画类型
 
+    @SerializedName("size")
+    private float size = 1.0f; // 立绘缩放大小，范围0-5，默认为1
+
     public PortraitInfo() {
     }
 
@@ -27,6 +30,15 @@ public class PortraitInfo {
         this.position = position;
         this.brightness = brightness;
         this.animationType = animationType;
+        this.size = 1.0f;
+    }
+
+    public PortraitInfo(String path, PortraitPosition position, float brightness, PortraitAnimationType animationType, float size) {
+        this.path = path;
+        this.position = position;
+        this.brightness = brightness;
+        this.animationType = animationType;
+        this.size = Math.max(0.0f, Math.min(5.0f, size));
     }
 
 }

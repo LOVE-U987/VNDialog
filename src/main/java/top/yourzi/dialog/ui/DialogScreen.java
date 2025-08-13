@@ -103,7 +103,8 @@ public class DialogScreen extends Screen {
                             portraitInfo.getPath(),
                             portraitInfo.getBrightness(),
                             portraitInfo.getPosition(),
-                            portraitInfo.getAnimationType()
+                            portraitInfo.getAnimationType(),
+                            portraitInfo.getSize()
                     );
                     if (displayData.loadedSuccessfully) {
                         this.portraitDisplayList.add(displayData);
@@ -188,12 +189,6 @@ public class DialogScreen extends Screen {
                 }
             } catch (Exception e) {
                 Dialog.LOGGER.error("Error accessing background image resource: {}", imageLocation, e);
-            }
-        }
-
-        public void close() {
-            if (image != null) {
-                image.close();
             }
         }
     }
@@ -509,7 +504,7 @@ public class DialogScreen extends Screen {
                     int portraitRenderWidth = (int) (portraitRenderHeight * aspectRatio); // 等比例计算宽度
 
                     int baseX = 0, baseY = 0;
-                    float currentScale = 1.0f;
+                    float currentScale = displayData.size; // 使用size属性控制缩放
                     float currentAlpha = 1.0f;
                     float yOffset = 0;
                     float xOffset = 0;
@@ -787,13 +782,21 @@ public class DialogScreen extends Screen {
                 toggleHistoryScreen();
                 return true; // 事件已处理
             } else {
-                // 如果在对话界面，ESC键弹出确认关闭的提示
-                this.minecraft.setScreen(new ConfirmScreen(
-                        this::confirmCloseDialog,
-                        Component.translatable("dialog.ui.esc"), // 确认框标题
-                        Component.translatable("dialog.ui.confirm_esc") // 确认框消息
-                ));
-                return true; // 事件已处理
+                // 检查对话序列是否允许关闭
+                if (!dialogSequence.isCloseAllowed()) {
+                    // 不允许关闭，直接返回，不处理ESC键
+                    return true; // 事件已处理，但不执行关闭操作
+                } else {
+                    // 允许关闭，显示确认窗口
+                    Component confirmMessage = Component.translatable("dialog.ui.confirm_esc");
+                    ConfirmScreen confirmScreen = new ConfirmScreen(
+                        this::confirmCloseDialogWithSkip,
+                        Component.translatable("dialog.ui.esc"),
+                        confirmMessage
+                    );
+                    this.minecraft.setScreen(confirmScreen);
+                    return true; // 事件已处理
+                }
             }
         }
 
@@ -831,16 +834,35 @@ public class DialogScreen extends Screen {
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
-    //处理关闭对话确认的回调方法
-    private void confirmCloseDialog(boolean confirmed) {
+    //处理跳过对话确认的回调方法
+    private void confirmCloseDialogWithSkip(boolean confirmed) {
         if (confirmed) {
-            this.onClose(); // 调用Screen的onClose方法，通常是关闭屏幕
+            // 用户确认跳过，执行后续指令并关闭对话
+            executeRemainingCommandsAndClose();
         } else {
-            // 如果用户选择“否”，则重新显示当前对话界面
+            // 如果用户选择"否"，则重新显示当前对话界面
             if (this.minecraft != null) {
                 this.minecraft.setScreen(this);
             }
         }
+    }
+
+    /**
+     * 执行后续所有指令并关闭对话
+     */
+    private void executeRemainingCommandsAndClose() {
+        // 获取当前条目之后的所有条目
+        List<DialogEntry> remainingEntries = dialogSequence.getRemainingEntries(dialogEntry);
+        
+        // 执行所有后续条目中的指令
+        for (DialogEntry entry : remainingEntries) {
+            if (entry.getCommands() != null && !entry.getCommands().isEmpty()) {
+                DialogManager.getInstance().executeCommands(this.getMinecraft().player, entry.getCommands());
+            }
+        }
+        
+        // 关闭对话界面
+        this.onClose();
     }
 
     @Override
@@ -1153,6 +1175,7 @@ public class DialogScreen extends Screen {
         int actualWidth;
         int actualHeight;
         float brightness = 1.0f;
+        float size = 1.0f; // 立绘缩放大小
         PortraitPosition position;
         PortraitAnimationType animationType = PortraitAnimationType.NONE;
         long animationStartTime = -1;
@@ -1163,10 +1186,11 @@ public class DialogScreen extends Screen {
             Dialog.LOGGER.info("Portrait cache cleared.");
         }
 
-        PortraitDisplayData(String path, float brightness, PortraitPosition position, PortraitAnimationType animationType) {
+        PortraitDisplayData(String path, float brightness, PortraitPosition position, PortraitAnimationType animationType, float size) {
             if (path != null && !path.isEmpty()) {
                 this.resourceLocation = new ResourceLocation(Dialog.MODID, String.format("textures/portraits/%s", path));
                 this.brightness = brightness;
+                this.size = Math.max(0.0f, Math.min(5.0f, size)); // 限制范围在0-5之间
                 this.position = position != null ? position : PortraitPosition.RIGHT; // 位置
                 this.animationType = animationType != null ? animationType : PortraitAnimationType.NONE; // 动画类型
                 loadDimensions();

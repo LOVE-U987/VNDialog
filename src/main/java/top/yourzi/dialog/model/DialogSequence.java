@@ -3,6 +3,8 @@ package top.yourzi.dialog.model;
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import lombok.Setter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 表示一个完整的对话序列，通常对应一个JSON文件。
@@ -21,6 +23,17 @@ public class DialogSequence {
     // 对话序列的起始对话ID，如果为空则从第一个条目开始
     @SerializedName("start")
     private String startId;
+    // 是否允许通过ESC键关闭对话，默认为false
+    @SerializedName("allowClose")
+    private Boolean allowClose;
+
+    /**
+     * 检查是否允许关闭对话。
+     * @return 如果允许关闭则返回true，否则返回false。默认为false。
+     */
+    public boolean isCloseAllowed() {
+        return allowClose != null && allowClose;
+    }
 
     /**
      * 获取对话序列的第一个对话条目。
@@ -84,5 +97,25 @@ public class DialogSequence {
         }
         
         return null;
+    }
+
+    /**
+     * 获取指定对话条目之后的所有对话条目（包含有指令的条目）。
+     * @param currentEntry 当前的对话条目。
+     * @return 后续所有对话条目的列表。
+     */
+    public List<DialogEntry> getRemainingEntries(DialogEntry currentEntry) {
+        List<DialogEntry> remainingEntries = new ArrayList<>();
+        if (currentEntry == null || entries == null || entries.length == 0) {
+            return remainingEntries;
+        }
+
+        DialogEntry nextEntry = getNextEntry(currentEntry);
+        while (nextEntry != null) {
+            remainingEntries.add(nextEntry);
+            nextEntry = getNextEntry(nextEntry);
+        }
+        
+        return remainingEntries;
     }
 }
