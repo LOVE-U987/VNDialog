@@ -57,8 +57,12 @@
 ```json
 {
   "hello": {
+    "category": "hello",
     "sounds": [
-      "dialog:hello"
+      {
+        "name": "dialog:hello",
+        "stream": true
+      }
     ]
   }
 }
