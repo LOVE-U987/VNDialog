@@ -3,16 +3,17 @@ package top.yourzi.dialog.ui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -78,6 +79,12 @@ public class DialogScreen extends Screen {
     private int totalHistoryContentHeight = 0;
     private boolean canScrollHistoryDown = false;
     private boolean canScrollHistoryUp = false;
+    
+    // 历史记录音频播放相关
+    private final List<HistoryAudioButton> historyAudioButtons = new ArrayList<>();
+    private SimpleSoundInstance currentHistoryAudio = null; // 当前播放的历史记录音频
+    
+    // 音频播放现在由DialogManager全局管理
     public DialogScreen(DialogSequence dialogSequence, DialogEntry dialogEntry, String playerName) {
         super(dialogEntry.getSpeaker(playerName) != null ? dialogEntry.getSpeaker(playerName) : Component.empty());
         this.dialogSequence = dialogSequence;
@@ -152,7 +159,22 @@ public class DialogScreen extends Screen {
             this.fastForwardCooldown = 5;
             DialogManager.setFastForwardingNext(false); // 重置标记
         }
+        
+        // 初始化音频播放
+        initializeAudio();
     }
+    
+    /**
+     * 初始化音频播放
+     */
+    private void initializeAudio() {
+        // 如果当前对话条目有音频路径且不是快进模式，则开始播放音频
+        if (dialogEntry.getAudioPath() != null && !dialogEntry.getAudioPath().isEmpty() && fastForwardCooldown == 0) {
+            DialogManager.playDialogAudio(dialogEntry.getAudioPath());
+        }
+    }
+    
+    // 音频播放方法已移至DialogManager进行全局管理
 
     // 管理背景图片显示数据
     private static class BackgroundImageDisplayData {
@@ -365,7 +387,7 @@ public class DialogScreen extends Screen {
         }
         
         this.closeHistoryButton = new ImageButton(
-                this.width / 2 - 50, this.height - 30,
+                this.width / 2 - closeButtonWidth / 2, this.height - 30,
                 closeButtonWidth, closeButtonHeight,
                 closeXTexStart, closeYTexStart, closeYDiffText,
                 closeButtonTexture, closeTextureWidth, closeTextureHeight,
@@ -690,7 +712,24 @@ public class DialogScreen extends Screen {
 
             // 如果自动播放开启，且文本完全显示，且没有选项，则延迟后自动前进
             if (DialogManager.isAutoPlaying() && textFullyDisplayed && !dialogEntry.hasOptions()) {
-                if (System.currentTimeMillis() - lastCharTime > top.yourzi.dialog.config.ClientConfig.AUTO_ADVANCE_DELAY.get()) { // lastCharTime 在文本完全显示后更新
+                boolean canAutoAdvance = false;
+                
+                // 如果当前对话有音频，等待音频播放完毕再跳转
+                if (dialogEntry.getAudioPath() != null && !dialogEntry.getAudioPath().isEmpty()) {
+                    if (DialogManager.isAudioFinished()) {
+                        canAutoAdvance = true;
+                    }
+                } else {
+                    // 没有音频，使用原有的延迟逻辑
+                    if (System.currentTimeMillis() - lastCharTime > top.yourzi.dialog.config.ClientConfig.AUTO_ADVANCE_DELAY.get()) {
+                        canAutoAdvance = true;
+                    }
+                }
+                
+                if (canAutoAdvance) {
+                    // 停止当前音频（如果有）
+                    DialogManager.stopCurrentAudio();
+                    
                     DialogManager.getInstance().showNextDialog();
                     // 执行当前对话条目的指令
                     if (dialogEntry.getCommand() != null && !dialogEntry.getCommand().isEmpty()) {
@@ -758,6 +797,9 @@ public class DialogScreen extends Screen {
                     fastForwardCooldown--;
                 } else {
                     DialogManager.setFastForwardingNext(true);
+                    // 停止当前音频播放（快进时不播放音频）
+                    DialogManager.stopCurrentAudio();
+                    
                     // 执行当前对话条目的指令（如果存在）
                     if (dialogEntry.getCommand() != null && !dialogEntry.getCommand().isEmpty()) {
                         DialogManager.getInstance().executeCommands(this.getMinecraft().player, dialogEntry.getCommands());
@@ -815,6 +857,9 @@ public class DialogScreen extends Screen {
                 DialogManager.stopAutoPlay();
                 updateAutoPlayButtonText();
             }
+            // 停止当前音频播放
+            DialogManager.stopCurrentAudio();
+            
             if (dialogEntry.getCommand() != null && !dialogEntry.getCommand().isEmpty()) {
                 DialogManager.getInstance().executeCommands(this.getMinecraft().player, dialogEntry.getCommands());
             }
@@ -828,6 +873,9 @@ public class DialogScreen extends Screen {
                 DialogManager.stopAutoPlay();
                 updateAutoPlayButtonText();
             }
+            // 停止当前音频播放
+            DialogManager.stopCurrentAudio();
+            
             textFullyDisplayed = true;
             currentCharIndex = dialogEntry.getText(playerName).getString().length();
             lastCharTime = System.currentTimeMillis();
@@ -901,6 +949,16 @@ public class DialogScreen extends Screen {
             return true;
         }
 
+        // 如果显示历史记录，检查是否点击了音频播放按钮
+        if (showingHistory) {
+            for (HistoryAudioButton audioButton : historyAudioButtons) {
+                if (audioButton.isMouseOver(mouseX, mouseY) && button == 0) {
+                    playHistoryAudio(audioButton.entry);
+                    return true;
+                }
+            }
+        }
+        
         // 如果没有显示历史记录且没有 widget 处理点击事件，
         // 则检查是否点击了对话框区域以推进文本/对话。
         if (!showingHistory) {
@@ -949,6 +1007,40 @@ public class DialogScreen extends Screen {
     private void updateAutoPlayButtonText() {
         if (this.autoPlayButton != null) {
             this.autoPlayButton.setMessage(Component.literal(DialogManager.isAutoPlaying() ? "⏸" : "▶"));
+        }
+    }
+    
+    /**
+     * 播放历史记录中的音频
+     */
+    private void playHistoryAudio(DialogEntry entry) {
+        // 停止当前播放的历史记录音频
+        if (currentHistoryAudio != null) {
+            Minecraft.getInstance().getSoundManager().stop(currentHistoryAudio);
+            currentHistoryAudio = null;
+        }
+        
+        // 播放新的音频
+        if (entry.getAudioPath() != null && !entry.getAudioPath().isEmpty()) {
+            try {
+                // 移除.ogg后缀（如果存在）
+                String soundName = entry.getAudioPath().replace(".ogg", "");
+                
+                // 构建音频资源位置 - 使用sounds.json中定义的音频事件名称
+                ResourceLocation audioLocation = new ResourceLocation(Dialog.MODID, soundName);
+                
+                // 创建音频实例并播放（与DialogManager中的方式保持一致）
+                currentHistoryAudio = SimpleSoundInstance.forUI(
+                    SoundEvent.createVariableRangeEvent(audioLocation),
+                    1.0f, // volume
+                    1.0f  // pitch
+                );
+                
+                Minecraft.getInstance().getSoundManager().play(currentHistoryAudio);
+                
+            } catch (Exception e) {
+                Dialog.LOGGER.error("Failed to play history audio: " + entry.getAudioPath(), e);
+            }
         }
     }
 
@@ -1052,7 +1144,11 @@ public class DialogScreen extends Screen {
 
         // 渲染实际可见内容
         currentY = historyAreaTopY - historyScrollOffset; // 应用滚动偏移
-
+        
+        // 清空之前的音频按钮
+        historyAudioButtons.clear();
+        
+        int entryIndex = 0;
         for (DialogEntry entry : historyEntries) {
 
 
@@ -1123,6 +1219,33 @@ public class DialogScreen extends Screen {
                 entryHeight += extraEmptyLineHeight;
             }
             // 如果条目的任何部分在可视区域之上，并且其结束部分在可视区域之下，则认为该条目是（部分）可见的
+            
+            // 如果条目有音频配置，创建播放按钮
+            if (entry.getAudioPath() != null && !entry.getAudioPath().isEmpty()) {
+                int buttonSize = 12;
+                int buttonX = textPaddingLeft - buttonSize - 5; // 在文本左侧
+                int buttonY = entryStartY + (entryHeight - buttonSize) / 2 - 4; // 垂直居中
+                
+                // 只有当按钮在可视区域内时才添加
+                if (buttonY + buttonSize > historyAreaTopY && buttonY < historyAreaBottomY) {
+                    historyAudioButtons.add(new HistoryAudioButton(entry, buttonX, buttonY, buttonSize, buttonSize, entryIndex));
+                }
+            }
+            
+            entryIndex++;
+        }
+        
+        // 渲染音频播放按钮
+        for (HistoryAudioButton button : historyAudioButtons) {
+            // 绘制按钮背景
+            int buttonColor = button.isMouseOver(mouseX, mouseY) ? 0xFF555555 : 0xFF333333;
+            guiGraphics.fill(button.x, button.y, button.x + button.width, button.y + button.height, buttonColor);
+            
+            // 绘制播放图标
+            String playIcon = "🔈";
+            int iconX = button.x + (button.width - font.width(playIcon)) / 2;
+            int iconY = button.y + (button.height - font.lineHeight) / 2;
+            guiGraphics.drawString(font, playIcon, iconX, iconY, 0xFFFFFF);
         }
 
         // 更新滚动状态
@@ -1168,6 +1291,12 @@ public class DialogScreen extends Screen {
 
             this.historyScrollOffset = Mth.clamp(newScrollOffset, 0, maxScroll);
             return true;
+        } else {
+            // 在对话界面中，向上滚动（delta > 0）打开历史记录界面
+            if (delta > 0) {
+                toggleHistoryScreen();
+                return true;
+            }
         }
         return super.mouseScrolled(mouseX, mouseY, delta);
     }
@@ -1333,5 +1462,25 @@ public class DialogScreen extends Screen {
                 break;
         }
         RenderSystem.disableBlend();
+    }
+    
+    // 历史记录音频播放按钮类
+    private static class HistoryAudioButton {
+        public final DialogEntry entry;
+        public final int x, y, width, height;
+        public final int entryIndex;
+        
+        public HistoryAudioButton(DialogEntry entry, int x, int y, int width, int height, int entryIndex) {
+            this.entry = entry;
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.entryIndex = entryIndex;
+        }
+        
+        public boolean isMouseOver(double mouseX, double mouseY) {
+            return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
+        }
     }
 }

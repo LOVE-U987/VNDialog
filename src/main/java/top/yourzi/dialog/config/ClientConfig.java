@@ -66,7 +66,7 @@ public class ClientConfig {
                 .define("isPauseScreen", false);
         AUTO_ADVANCE_DELAY = BUILDER
                 .comment("自动推进对话的延迟时间（毫秒）")
-                .define("autoAdvanceDelay", 200);
+                .define("autoAdvanceDelay", 700);
         SHOW_SPEAKER_NAME = BUILDER
                 .comment("是否显示说话者的名称")
                 .define("showSpeakerName", true);

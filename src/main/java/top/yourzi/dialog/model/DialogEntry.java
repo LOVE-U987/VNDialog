@@ -42,13 +42,24 @@ public class DialogEntry {
     // 该对话条目完成后执行的命令
     @SerializedName("command") // 保持JSON字段名为command
     private List<String> commands;
-
     // 是否允许跳过此对话条目
     @SerializedName("allowSkip")
     private Boolean allowSkip;
     // 是否在此条对话后结束整个对话
     @SerializedName("endDialog")
     private Boolean endDialog;
+    // 该对话条目的可见性命令
+    @SerializedName("visibility_command")
+    private String visibilityCommand;
+    // 需要在对话中显示的物品列表
+    @SerializedName("display_items")
+    private List<DisplayItemInfo> displayItems;
+    // 背景图片信息
+    @SerializedName("background_image")
+    private BackgroundImageInfo backgroundImage;
+    // 对话音频文件路径（相对于assets/dialog/sounds/目录）
+    @SerializedName("audio")
+    private String audioPath;
 
     /**
      * 检查是否允许跳过此对话条目
@@ -82,18 +93,6 @@ public class DialogEntry {
         }
         return null;
     }
-
-    // 该对话条目的可见性命令
-    @SerializedName("visibility_command")
-    private String visibilityCommand;
-
-    // 需要在对话中显示的物品列表
-    @SerializedName("display_items")
-    private List<DisplayItemInfo> displayItems;
-
-    // 背景图片信息
-    @SerializedName("background_image")
-    private BackgroundImageInfo backgroundImage;
 
     public Component placeHolderReplace(String fromString, String toString, JsonElement targetElement) {
         if (targetElement == null || targetElement.isJsonNull()) {

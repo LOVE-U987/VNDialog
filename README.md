@@ -12,6 +12,7 @@
 **VNDialog** 是一个为Minecraft设计的对话引擎模组，灵感来源于经典Galgame的对话系统。通过简单的JSON配置即可实现：  
 - 🎭 多角色立绘显示与简单的入场动画  
 - 💬 分支对话选项  
+- 🎵 对话音频播放
 - 🎨 对话触发指令与游戏内事件互动
 
 支持通过数据包热加载对话配置，无需魔改即可创建丰富的剧情内容。
@@ -43,7 +44,26 @@
 
    ▶  建议使用.png格式，256*128
 
+### 🎵 音频导入
+   **资源包配置**  
+   在`{版本文件夹}/resourcepacks/{自己的资源包}/assets/dialog/sounds`路径下放置音频文件  
+   
+   ▶  音频文件必须为.ogg格式
+   
+   ▶  需要在`{版本文件夹}/resourcepacks/{自己的资源包}/assets/dialog/sounds.json`中注册音频事件
+   
+   具体的sounds.json文件配置与原版一致，参考[Minecraft Wiki](https://zh.minecraft.wiki/w/Tutorial:%E5%88%B6%E4%BD%9C%E8%B5%84%E6%BA%90%E5%8C%85/%E9%9F%B3%E6%95%88%E5%92%8C%E9%9F%B3%E4%B9%90?variant=zh-cn)，这里提供一个简单的示例：
 
+```json
+{
+  "hello": {
+    "sounds": [
+      "dialog:hello"
+    ]
+  }
+}
+```
+   其中`"hello"`是音频事件名称，`"dialog:hello"`指向`assets/dialog/sounds/hello.ogg`文件。
 
 ### 💬对话制作
    **一个最简单的对话如下所示:**
@@ -109,6 +129,7 @@
   "id": "unique_entry_id",
   "speaker": "Speaker Name",
   "text": "Dialog text.",
+  "audio": "character_voice",
   "next": "entry_id_to_go_to_after_this_entry",
   "endDialog": false,
   "allowSkip": false,
@@ -136,6 +157,9 @@
   - 说话者的名字或信息。可以是普通字符串或文本组件。
 - **`text` (必需)**: `String` 或 `Text Component`
   - 对话的主要内容。可以是普通字符串或文本组件。
+- **`audio` (可选)**: `String`
+  - 对话的音频事件名称，具体配置参考上文“音频导入”。
+  - 例如，`"hello"` 会播放上文中配置的 `"hello"` 音频事件。
 - **`next` (可选)**: `String`
   - 当玩家完成此条目的对话后，对话将跳转到的下一个条目的 `id`。
 - **`endDialog` (可选)**: `Boolean`

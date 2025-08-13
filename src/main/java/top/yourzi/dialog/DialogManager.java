@@ -32,6 +32,9 @@ import java.util.stream.Collectors;
 import java.util.Collections;
 
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.sounds.SoundEvent;
 
 public class DialogManager {
     public static final Gson GSON = new GsonBuilder().create();
@@ -48,6 +51,12 @@ public class DialogManager {
     private final List<DialogEntry> dialogHistory = new ArrayList<>();
     // 标记下一次对话推进是否由快速跳过触发
     private static boolean isFastForwardingNext = false;
+    
+    // 全局音频播放管理
+    private static SimpleSoundInstance currentAudioInstance = null;
+    private static long audioStartTime = 0;
+    private static long audioEndTime = 0;
+    private static boolean audioPlaying = false;
     // 自动播放状态
     private static boolean isAutoPlaying = false;
     // 存储当前对话的玩家名称
@@ -546,6 +555,10 @@ public class DialogManager {
         
         currentEntry = nextEntry;
         addDialogToHistory(currentEntry); // 将后续条目加入历史记录
+        
+        // 在创建新的DialogScreen之前停止当前音频
+        stopCurrentAudio();
+        
         // 更新对话界面
         Minecraft.getInstance().setScreen(new DialogScreen(currentSequence, currentEntry, this.currentDialogPlayerName));
     }
@@ -568,20 +581,11 @@ public class DialogManager {
         
         currentEntry = targetEntry;
         addDialogToHistory(currentEntry); // 将跳转的条目加入历史记录
+        
+        // 在创建新的DialogScreen之前停止当前音频
+        stopCurrentAudio();
+        
         Minecraft.getInstance().setScreen(new DialogScreen(currentSequence, currentEntry, this.currentDialogPlayerName));
-    }
-    /**
-     * (服务端) 获取玩家当前对话序列。
-     */
-    private DialogSequence getDialogSequenceForPlayer(ServerPlayer player, String dialogId) {
-        DialogSequence sequence = dialogSequences.get(dialogId);
-        if (sequence != null) return sequence;
-        for (DialogSequence seq : dialogSequences.values()) {
-            if (seq.findEntryById(dialogId) != null) {
-                return seq;
-            }
-        }
-        return null;
     }
 
     /**
@@ -598,6 +602,81 @@ public class DialogManager {
     }
 
     // 保留旧的 executeCommand 方法以实现向后兼容
+    
+    /**
+     * 播放对话音频（全局管理）
+     */
+    @OnlyIn(Dist.CLIENT)
+    public static void playDialogAudio(String audioPath) {
+        try {
+            // 停止当前播放的音频
+            stopCurrentAudio();
+            
+            // 移除.ogg后缀（如果存在）
+            String soundName = audioPath.replace(".ogg", "");
+            
+            // 构建音频资源位置 - 使用sounds.json中定义的音频事件名称
+            ResourceLocation audioLocation = new ResourceLocation(Dialog.MODID, soundName);
+            
+            // 创建音频实例并播放
+            currentAudioInstance = SimpleSoundInstance.forUI(
+                SoundEvent.createVariableRangeEvent(audioLocation),
+                1.0f, // volume
+                1.0f  // pitch
+            );
+            
+            SoundManager soundManager = Minecraft.getInstance().getSoundManager();
+            soundManager.play(currentAudioInstance);
+            
+            audioStartTime = System.currentTimeMillis();
+            audioEndTime = 0; // 重置结束时间
+            audioPlaying = true;
+
+        } catch (Exception e) {
+            Dialog.LOGGER.error("Failed to play dialog audio: {}", audioPath, e);
+        }
+    }
+    
+    /**
+     * 停止当前播放的音频（全局管理）
+     */
+    @OnlyIn(Dist.CLIENT)
+    public static void stopCurrentAudio() {
+        if (currentAudioInstance != null && audioPlaying) {
+            SoundManager soundManager = Minecraft.getInstance().getSoundManager();
+            soundManager.stop(currentAudioInstance);
+            currentAudioInstance = null;
+            audioPlaying = false;
+            audioEndTime = 0; // 重置结束时间
+        }
+    }
+    
+    /**
+     * 检查音频是否正在播放（全局管理）
+     */
+    @OnlyIn(Dist.CLIENT)
+    public static boolean isAudioPlaying() {
+        return audioPlaying;
+    }
+    
+    /**
+     * 检查音频是否已完成播放（全局管理）
+     */
+    @OnlyIn(Dist.CLIENT)
+    public static boolean isAudioFinished() {
+        if (!audioPlaying || currentAudioInstance == null) {
+            return true;
+        }
+        
+        SoundManager soundManager = Minecraft.getInstance().getSoundManager();
+        if (!soundManager.isActive(currentAudioInstance)) {
+            audioPlaying = false;
+            audioEndTime = System.currentTimeMillis();
+            return true;
+        }
+        
+        return false;
+    }
     @Deprecated
     public void executeCommand(Player player, String command) {
         if (command != null && !command.isEmpty()) {
