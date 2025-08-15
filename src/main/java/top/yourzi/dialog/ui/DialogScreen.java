@@ -455,7 +455,14 @@ public class DialogScreen extends Screen {
 
         int buttonSpacing = 5;
         int totalHeight = options.length * (buttonHeight + buttonSpacing) - buttonSpacing;
+        
+        // 计算选项按钮的起始Y位置，如果有物品显示则需要额外上移
         int startY = dialogBoxY - totalHeight - 10;
+        if (!this.displayItemStacks.isEmpty()) {
+            // 物品显示区域高度：itemSize(16) + 间距(5) + 额外间距(10)
+            int itemDisplayHeight = 16 + 5 + 10;
+            startY -= itemDisplayHeight;
+        }
 
 
         for (int i = 0; i < options.length; i++) {
