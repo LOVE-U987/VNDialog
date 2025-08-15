@@ -92,6 +92,20 @@
 然后，在游戏内使用`/dialog reload`指令重载对话列表。如果一切顺利，你应该能看到你的对话被加载的提示。
 最后，使用`/dialog show <dialog_id>`指令来展示你的对话，例如`/dialog show hello_world`。
 
+#### 🎭 调整对话主体
+
+从1.2.0版本开始，支持指定实体作为对话的说话者：
+
+- **基础用法**: `/dialog show <dialog_id>` - 自己对自己说话（向后兼容）
+- **指定实体**: `/dialog <entity> show <player>` - 指定实体对指定玩家说话
+
+例如：
+- `/dialog show hello_world` - 自己对自己展示对话
+- `/dialog @e[type=villager,limit=1] show @s` - 让最近的村民对自己说话
+- `/dialog @e[name="小叶子"] show Alice` - 让名为"小叶子"的实体对玩家Alice说话
+
+当指定实体作为说话者时，对话中的指令将以该实体的身份执行，而不是玩家。这为创建更丰富的互动体验提供了可能。
+
 ### 📖 对话JSON文件结构详解
 
 一个完整的对话JSON文件包含以下主要字段：
@@ -305,6 +319,13 @@
 ### 📝 示例：一个包含分支和立绘的对话
 - [点击跳转至示例文件](src/main/resources/data/dialog/dialogs/test_dialog.json)
 - 可以在游戏内使用`/dialog show test_dialog`来预览效果
+- 也可以使用`/dialog @e[type=villager,limit=1] show @s test_dialog`让村民对你说话
+
+### 🐛 调试对话示例
+- [点击跳转至调试对话文件](src/main/resources/data/dialog/dialogs/debug_dialog.json)
+- 这是一个调试用的对话，会给说话实体添加发光效果，并给玩家4个钻石
+- 使用`/dialog show debug_dialog`测试基础功能
+- 使用`/dialog @e[type=villager,limit=1] show @s debug_dialog`让村民对你说话并执行调试指令
 
 如果有使用翻译键，确保你的翻译键（如 `dialog.complex.title`）在对应的语言文件（例如 `assets/dialog/lang/zh_cn.json`）中有定义。
 
@@ -312,7 +333,7 @@
 
 - **ID唯一性**: 确保所有对话 `id` 和条目 `id` 在其作用域内是唯一的。
 - **资源路径**: 所有图片路径都是相对于特定文件夹的（例如 `textures/portraits/`）。请确保资源包结构正确。
-- **测试**: 使用 `/dialog reload` 可以热重载对话列表，用 `/dialog show <id>` 可以测试你的对话。
+- **测试**: 使用 `/dialog reload` 可以热重载对话列表，用 `/dialog show <id>` 或 `/dialog <entity> show <player>` 可以测试你的对话。
 
 
 通过以上教程，你应该能够创建出丰富多样的对话内容了！

@@ -990,7 +990,7 @@ public class DialogScreen extends Screen {
                     if (!dialogEntry.hasOptions()) {
                         // 如果没有选项，则推进对话
                         // 执行当前对话条目的指令（如果存在）
-                        if (dialogEntry.getCommand() != null && !dialogEntry.getCommand().isEmpty()) {
+                        if (dialogEntry.getCommands() != null && !dialogEntry.getCommands().isEmpty()) {
                             DialogManager.getInstance().executeCommands(this.getMinecraft().player, dialogEntry.getCommands(), this.speakerEntity);
                         }
                         DialogManager.getInstance().showNextDialog();

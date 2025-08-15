@@ -85,11 +85,11 @@ public class DialogCommand {
         // 发送包含完整对话数据的包，包括说话实体信息
         top.yourzi.dialog.network.NetworkHandler.sendShowDialogToPlayerWithEntity(targetPlayer, dialogId, dialogJson, speakerEntity);
         
-        // 发送成功消息
-        source.sendSuccess(() -> Component.translatable("dialog.command.show.success_with_entity", 
-            speakerEntity.getDisplayName().getString(), 
-            targetPlayer.getDisplayName().getString(), 
-            dialogId), true);
+        // 发送成功消息 - 已禁用
+        // source.sendSuccess(() -> Component.translatable("dialog.command.show.success_with_entity", 
+        //     speakerEntity.getDisplayName().getString(), 
+        //     targetPlayer.getDisplayName().getString(), 
+        //     dialogId), true);
         return 1;
     }
 
@@ -121,8 +121,8 @@ public class DialogCommand {
             // 发送包含完整对话数据的包
             top.yourzi.dialog.network.NetworkHandler.sendShowDialogToPlayer(player, dialogId, dialogJson);
             
-            // 发送成功消息
-            source.sendSuccess(() -> Component.translatable("dialog.command.show.success", dialogId), true);
+            // 发送成功消息 - 已禁用
+            // source.sendSuccess(() -> Component.translatable("dialog.command.show.success", dialogId), true);
             return 1;
         } else {
             source.sendFailure(Component.translatable("dialog.command.show.player_only"));
