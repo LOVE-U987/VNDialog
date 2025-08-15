@@ -492,6 +492,63 @@ public class DialogManager {
     }
 
     /**
+     * 接收并显示带实体信息的玩家特定对话序列
+     */
+    @OnlyIn(Dist.CLIENT)
+    public void receiveAndShowPlayerSpecificDialogWithEntity(String dialogId, String sequenceJson, int speakerEntityId) {
+        if (Minecraft.getInstance() == null || !Minecraft.getInstance().level.isClientSide) return;
+        
+        stopAutoPlay(); // Reset auto-play
+
+        DialogSequence playerSequence;
+        try {
+            playerSequence = GSON.fromJson(sequenceJson, DialogSequence.class);
+        } catch (JsonSyntaxException e) {
+            Dialog.LOGGER.error("Failed to parse player-specific dialog sequence JSON for ID {}: {}", dialogId, e.getMessage());
+            sendPlayerMessage(Component.translatable("dialog.manager.received_sequence_parse_failed", dialogId, e.getMessage()));
+            return;
+        }
+
+        if (playerSequence == null || playerSequence.getId() == null) {
+            Dialog.LOGGER.warn("Parsed player-specific dialog sequence is null or has no ID. Original ID: {}", dialogId);
+            sendPlayerMessage(Component.translatable("dialog.manager.received_sequence_empty", dialogId));
+            return;
+        }
+
+        if (!dialogId.equals(playerSequence.getId())) {
+            Dialog.LOGGER.warn("Dialog ID mismatch! Expected (from packet): {}, ID in parsed sequence: {}. Using ID from sequence.", dialogId, playerSequence.getId());
+        }
+
+        // 获取说话实体
+        net.minecraft.world.entity.Entity speakerEntity = null;
+        if (Minecraft.getInstance().level != null) {
+            speakerEntity = Minecraft.getInstance().level.getEntity(speakerEntityId);
+        }
+        
+        clearDialogHistory();
+        currentSequence = playerSequence;
+        currentEntry = playerSequence.getFirstEntry();
+        
+        if (currentEntry == null) {
+            Dialog.LOGGER.error("No entries found in player-specific dialog sequence: {}", playerSequence.getId());
+            sendPlayerMessage(Component.translatable("dialog.manager.no_entries", playerSequence.getId()));
+            currentSequence = null; 
+            return;
+        }
+
+        addDialogToHistory(currentEntry);
+
+        String playerName = "";
+        if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.getGameProfile() != null) {
+            playerName = Minecraft.getInstance().player.getGameProfile().getName();
+        }
+        this.currentDialogPlayerName = playerName;
+
+        // 显示带实体信息的对话
+        Minecraft.getInstance().setScreen(new DialogScreen(currentSequence, currentEntry, this.currentDialogPlayerName, speakerEntity));
+    }
+
+    /**
      * 获取快速跳过标记。
      */
     public static boolean isFastForwardingNext() {
@@ -592,10 +649,24 @@ public class DialogManager {
      * (服务端) 在服务器上代表玩家执行命令。
      */
     public void executeCommands(Player player, List<String> commands) {
+        executeCommands(player, commands, null);
+    }
+    
+    /**
+     * 执行指令列表，支持指定实体作为执行者
+     * @param player 玩家（用于向后兼容）
+     * @param commands 指令列表
+     * @param executorEntity 执行指令的实体，null表示使用玩家自己
+     */
+    public void executeCommands(Player player, List<String> commands, net.minecraft.world.entity.Entity executorEntity) {
         if (commands != null && !commands.isEmpty()) {
             for (String command : commands) {
                 if (command != null && !command.isEmpty()) {
-                    NetworkHandler.sendExecuteCommandToServer(command);
+                    if (executorEntity != null) {
+                        NetworkHandler.sendExecuteCommandToServerWithEntity(command, executorEntity.getId());
+                    } else {
+                        NetworkHandler.sendExecuteCommandToServer(command);
+                    }
                 }
             }
         }

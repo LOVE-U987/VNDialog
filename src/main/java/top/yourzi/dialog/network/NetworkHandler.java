@@ -77,6 +77,13 @@ public class NetworkHandler {
                 ExecuteServerCommandPacket::decode,
                 ExecuteServerCommandPacket::handle,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
+                
+        // 注册从服务端到客户端的带实体信息的对话显示包
+        INSTANCE.registerMessage(7, ShowDialogWithEntityPacket.class,
+                ShowDialogWithEntityPacket::encode,
+                ShowDialogWithEntityPacket::decode,
+                ShowDialogWithEntityPacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
     }
 
     /**
@@ -84,6 +91,13 @@ public class NetworkHandler {
      */
     public static void sendShowDialogToPlayer(ServerPlayer player, String dialogId, String dialogJson) {
         INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new ShowDialogPacket(dialogId, dialogJson));
+    }
+    
+    /**
+     * 向指定玩家发送带实体信息的显示对话的网络包
+     */
+    public static void sendShowDialogToPlayerWithEntity(ServerPlayer player, String dialogId, String dialogJson, net.minecraft.world.entity.Entity speakerEntity) {
+        INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new ShowDialogWithEntityPacket(dialogId, dialogJson, speakerEntity.getId()));
     }
 
     /**
@@ -147,6 +161,17 @@ public class NetworkHandler {
             INSTANCE.sendToServer(new ExecuteServerCommandPacket(command));
         } else {
             Dialog.LOGGER.warn("Cannot send ExecuteServerCommandPacket: not on client or no connection.");
+        }
+    }
+    
+    /**
+     * 客户端向服务端发送带实体信息的执行命令请求
+     */
+    public static void sendExecuteCommandToServerWithEntity(String command, int executorEntityId) {
+        if (Minecraft.getInstance() != null && Minecraft.getInstance().getConnection() != null) {
+            INSTANCE.sendToServer(new ExecuteServerCommandPacket(command, executorEntityId));
+        } else {
+            Dialog.LOGGER.warn("Cannot send ExecuteServerCommandPacket with entity: not on client or no connection.");
         }
     }
 }

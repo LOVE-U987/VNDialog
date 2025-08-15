@@ -84,12 +84,23 @@ public class DialogScreen extends Screen {
     private final List<HistoryAudioButton> historyAudioButtons = new ArrayList<>();
     private SimpleSoundInstance currentHistoryAudio = null; // 当前播放的历史记录音频
     
+    // 说话实体（可选）
+    private final net.minecraft.world.entity.Entity speakerEntity;
+    
     // 音频播放现在由DialogManager全局管理
     public DialogScreen(DialogSequence dialogSequence, DialogEntry dialogEntry, String playerName) {
+        this(dialogSequence, dialogEntry, playerName, null);
+    }
+    
+    /**
+     * 带说话实体的构造函数
+     */
+    public DialogScreen(DialogSequence dialogSequence, DialogEntry dialogEntry, String playerName, net.minecraft.world.entity.Entity speakerEntity) {
         super(dialogEntry.getSpeaker(playerName) != null ? dialogEntry.getSpeaker(playerName) : Component.empty());
         this.dialogSequence = dialogSequence;
         this.dialogEntry = dialogEntry;
         this.playerName = playerName;
+        this.speakerEntity = speakerEntity;
         this.font = Minecraft.getInstance().font;
 
         // 加载背景图片资源
@@ -482,7 +493,7 @@ public class DialogScreen extends Screen {
                     b -> {                     // onPress
                         // 执行选项指令（如果存在）
                         if (option.getCommand() != null && !option.getCommand().isEmpty()) {
-                            DialogManager.getInstance().executeCommands(this.getMinecraft().player, option.getCommand());
+                            DialogManager.getInstance().executeCommands(this.getMinecraft().player, option.getCommand(), this.speakerEntity);
                         }
                         DialogManager.getInstance().recordChoiceForCurrentDialog(option.getText(this.playerName).getString());
                         DialogManager.getInstance().jumpToDialog(option.getTargetId());
@@ -802,7 +813,7 @@ public class DialogScreen extends Screen {
                     
                     // 执行当前对话条目的指令（如果存在）
                     if (dialogEntry.getCommand() != null && !dialogEntry.getCommand().isEmpty()) {
-                        DialogManager.getInstance().executeCommands(this.getMinecraft().player, dialogEntry.getCommands());
+                        DialogManager.getInstance().executeCommands(this.getMinecraft().player, dialogEntry.getCommands(), this.speakerEntity);
                     }
                     DialogManager.getInstance().showNextDialog();
                     return; // 立即跳到下一条，避免渲染当前帧的剩余部分
@@ -861,7 +872,7 @@ public class DialogScreen extends Screen {
             DialogManager.stopCurrentAudio();
             
             if (dialogEntry.getCommand() != null && !dialogEntry.getCommand().isEmpty()) {
-                DialogManager.getInstance().executeCommands(this.getMinecraft().player, dialogEntry.getCommands());
+                DialogManager.getInstance().executeCommands(this.getMinecraft().player, dialogEntry.getCommands(), this.speakerEntity);
             }
             DialogManager.getInstance().showNextDialog();
             return true;
@@ -909,7 +920,7 @@ public class DialogScreen extends Screen {
         // 执行所有后续条目中的指令
         for (DialogEntry entry : remainingEntries) {
             if (entry.getCommands() != null && !entry.getCommands().isEmpty()) {
-                DialogManager.getInstance().executeCommands(this.getMinecraft().player, entry.getCommands());
+                DialogManager.getInstance().executeCommands(this.getMinecraft().player, entry.getCommands(), this.speakerEntity);
             }
         }
         
@@ -980,7 +991,7 @@ public class DialogScreen extends Screen {
                         // 如果没有选项，则推进对话
                         // 执行当前对话条目的指令（如果存在）
                         if (dialogEntry.getCommand() != null && !dialogEntry.getCommand().isEmpty()) {
-                            DialogManager.getInstance().executeCommands(this.getMinecraft().player, dialogEntry.getCommands());
+                            DialogManager.getInstance().executeCommands(this.getMinecraft().player, dialogEntry.getCommands(), this.speakerEntity);
                         }
                         DialogManager.getInstance().showNextDialog();
                         return true; // 消费点击事件

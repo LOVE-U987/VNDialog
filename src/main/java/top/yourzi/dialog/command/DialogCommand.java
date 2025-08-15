@@ -7,6 +7,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -35,6 +36,18 @@ public class DialogCommand {
         dispatcher.register(
             Commands.literal("dialog")
                 .requires(source -> source.hasPermission(2)) // 要求权限等级2 (OP)
+                // 新格式: /dialog <entity> show <player>
+                .then(Commands.argument("entity", net.minecraft.commands.arguments.EntityArgument.entity())
+                    .then(Commands.literal("show")
+                        .then(Commands.argument("player", net.minecraft.commands.arguments.EntityArgument.player())
+                            .then(Commands.argument("dialog_id", StringArgumentType.string())
+                                .executes(context -> showDialogWithEntity(
+                                    context, 
+                                    net.minecraft.commands.arguments.EntityArgument.getEntity(context, "entity"),
+                                    net.minecraft.commands.arguments.EntityArgument.getPlayer(context, "player"),
+                                    StringArgumentType.getString(context, "dialog_id")
+                                ))))))
+                // 向后兼容: /dialog show <dialog_id> (默认为自己对自己说话)
                 .then(Commands.literal("show")
                     .then(Commands.argument("id", StringArgumentType.string())
                         .executes(context -> showDialog(context, StringArgumentType.getString(context, "id")))))
@@ -46,7 +59,42 @@ public class DialogCommand {
     }
     
     /**
-     * 显示指定ID的对话。
+     * 显示指定ID的对话（新格式：实体对玩家说话）。
+     */
+    private static int showDialogWithEntity(CommandContext<CommandSourceStack> context, Entity speakerEntity, ServerPlayer targetPlayer, String dialogId) {
+        CommandSourceStack source = context.getSource();
+        
+        DialogManager dialogManager = DialogManager.getInstance();
+        DialogSequence originalSequence = dialogManager.getDialogSequence(dialogId);
+
+        if (originalSequence == null) {
+            source.sendFailure(Component.translatable("dialog.command.show.dialog_not_found", dialogId));
+            return 0;
+        }
+
+        // 为玩家创建特定对话序列 (过滤选项)
+        DialogSequence playerSpecificSequence = dialogManager.createPlayerSpecificSequence(originalSequence, targetPlayer, source.getServer());
+        if (playerSpecificSequence == null) {
+             source.sendFailure(Component.literal("Failed to create player-specific dialog for ID '" + dialogId + "'."));
+             return 0;
+        }
+
+        // 将过滤后的对话序列转换为JSON
+        String dialogJson = DialogManager.GSON.toJson(playerSpecificSequence);
+
+        // 发送包含完整对话数据的包，包括说话实体信息
+        top.yourzi.dialog.network.NetworkHandler.sendShowDialogToPlayerWithEntity(targetPlayer, dialogId, dialogJson, speakerEntity);
+        
+        // 发送成功消息
+        source.sendSuccess(() -> Component.translatable("dialog.command.show.success_with_entity", 
+            speakerEntity.getDisplayName().getString(), 
+            targetPlayer.getDisplayName().getString(), 
+            dialogId), true);
+        return 1;
+    }
+
+    /**
+     * 显示指定ID的对话（向后兼容：自己对自己说话）。
      */
     private static int showDialog(CommandContext<CommandSourceStack> context, String dialogId) {
         CommandSourceStack source = context.getSource();
@@ -56,9 +104,9 @@ public class DialogCommand {
             DialogSequence originalSequence = dialogManager.getDialogSequence(dialogId);
 
             if (originalSequence == null) {
-                source.sendFailure(Component.literal("Dialog with ID '" + dialogId + "' not found."));
-                return 0;
-            }
+            source.sendFailure(Component.translatable("dialog.command.show.dialog_not_found", dialogId));
+            return 0;
+        }
 
             // 为玩家创建特定对话序列 (过滤选项)
             DialogSequence playerSpecificSequence = dialogManager.createPlayerSpecificSequence(originalSequence, player, source.getServer());
@@ -72,6 +120,9 @@ public class DialogCommand {
 
             // 发送包含完整对话数据的包
             top.yourzi.dialog.network.NetworkHandler.sendShowDialogToPlayer(player, dialogId, dialogJson);
+            
+            // 发送成功消息
+            source.sendSuccess(() -> Component.translatable("dialog.command.show.success", dialogId), true);
             return 1;
         } else {
             source.sendFailure(Component.translatable("dialog.command.show.player_only"));

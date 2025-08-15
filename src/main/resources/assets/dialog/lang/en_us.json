@@ -2,11 +2,17 @@
   
   "dialog.command.show.success": "Showing dialog: %s",
   "dialog.command.show.player_only": "This command can only be executed by a player",
+  "dialog.command.show.entity_not_found": "Entity not found: %s",
+  "dialog.command.show.target_not_found": "Target player not found: %s",
+  "dialog.command.show.dialog_not_found": "Dialog not found: %s",
+  "dialog.command.show.help": "Usage: /dialog <entity_selector> show <player> <dialog_id> or /dialog show <dialog_id> (backward compatible)",
+  "dialog.command.show.success_with_entity": "Entity %s is showing dialog %s to player %s",
   "dialog.command.reload.start": "Reloading dialog files...",
   "dialog.command.reload.success_server": "Dialog files reloaded successfully",
   "dialog.command.reload.sync_sent_all": "Dialogs synchronized to all clients",
   "dialog.command.reload.no_dialogs_to_sync": "No dialogs to synchronize",
   "dialog.command.list.header": "Available dialogs:",
+  "dialog.command.help": "Dialog System Command Help:\n/dialog <entity_selector> show <player> <dialog_id> - Make specified entity show dialog to specified player\n/dialog show <dialog_id> - Show dialog (backward compatible)\n/dialog reload - Reload dialog files\n/dialog list - List all available dialogs",
   
   "dialog.ui.continue": "Continue",
   "dialog.ui.back": "Back",

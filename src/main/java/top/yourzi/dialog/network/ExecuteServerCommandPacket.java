@@ -15,9 +15,16 @@ import java.util.function.Supplier;
  */
 public class ExecuteServerCommandPacket {
     private final String command;
+    private final int executorEntityId; // 执行指令的实体ID，-1表示使用玩家自己
 
     public ExecuteServerCommandPacket(String command) {
         this.command = command;
+        this.executorEntityId = -1; // 默认使用玩家自己
+    }
+    
+    public ExecuteServerCommandPacket(String command, int executorEntityId) {
+        this.command = command;
+        this.executorEntityId = executorEntityId;
     }
 
     /**
@@ -25,13 +32,16 @@ public class ExecuteServerCommandPacket {
      */
     public void encode(FriendlyByteBuf buf) {
         buf.writeUtf(this.command);
+        buf.writeInt(this.executorEntityId);
     }
 
     /**
      * 从字节缓冲区解码包数据。
      */
     public static ExecuteServerCommandPacket decode(FriendlyByteBuf buf) {
-        return new ExecuteServerCommandPacket(buf.readUtf());
+        String command = buf.readUtf();
+        int executorEntityId = buf.readInt();
+        return new ExecuteServerCommandPacket(command, executorEntityId);
     }
 
     /**
@@ -52,10 +62,35 @@ public class ExecuteServerCommandPacket {
             }
 
 
-            // 以玩家身份创建命令源，并赋予OP权限（等级2）
-            CommandSourceStack commandSource = sender.createCommandSourceStack()
-                                                 .withPermission(Commands.LEVEL_GAMEMASTERS)
-                                                 .withSuppressedOutput();
+            CommandSourceStack commandSource;
+            
+            if (executorEntityId == -1) {
+                // 使用玩家自己作为指令执行者（向后兼容）
+                commandSource = sender.createCommandSourceStack()
+                                     .withPermission(Commands.LEVEL_GAMEMASTERS)
+                                     .withSuppressedOutput();
+            } else {
+                // 使用指定实体作为指令执行者
+                net.minecraft.world.entity.Entity executorEntity = sender.level().getEntity(executorEntityId);
+                if (executorEntity != null) {
+                    commandSource = new CommandSourceStack(
+                        executorEntity,
+                        executorEntity.position(),
+                        executorEntity.getRotationVector(),
+                        sender.serverLevel(),
+                        Commands.LEVEL_GAMEMASTERS,
+                        executorEntity.getName().getString(),
+                        executorEntity.getDisplayName(),
+                        server,
+                        executorEntity
+                    ).withSuppressedOutput();
+                } else {
+                    Dialog.LOGGER.warn("ExecuteServerCommandPacket: Executor entity with ID {} not found, falling back to player.", executorEntityId);
+                    commandSource = sender.createCommandSourceStack()
+                                         .withPermission(Commands.LEVEL_GAMEMASTERS)
+                                         .withSuppressedOutput();
+                }
+            }
 
             try {
                 server.getCommands().performPrefixedCommand(commandSource, command);
