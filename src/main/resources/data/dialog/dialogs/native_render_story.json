@@ -1,0 +1,189 @@
+{
+  "id": "native_render_story",
+  "title": "原生渲染演示剧情",
+  "description": "演示方案 B 原生渲染核心 + 六大扩展功能：合成 BGM/音效、物品弹窗、过场、滤镜闪光、文本输入、自动停顿、打字音。",
+  "start": "s1",
+  "entries": [
+    {
+      "id": "s1",
+      "speaker": { "text": "特莉波卡", "color": "red" },
+      "text": "@i, 欢迎来到原生渲染演示！这一条我们用渐变背景配合立绘「从右侧滑入 + 淡入」。",
+      "next": "s2",
+      "background_image": {
+        "type": "gradient",
+        "color": "#1a1a2e",
+        "colorBottom": "#16213e"
+      },
+      "portraits": [
+        {
+          "path": "tlipoca.png",
+          "position": "RIGHT",
+          "scale": 0.9,
+          "animationType": "SLIDE_IN_RIGHT",
+          "animations": [
+            { "type": "fade", "from": 0, "to": 1, "duration": 500, "easing": "LINEAR" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "speaker": { "text": "特莉波卡", "color": "red" },
+      "text": "先来一次屏幕震动过场。接着会演示「白色闪光」和「黑场」。",
+      "next": "s_flash",
+      "background_image": {
+        "type": "gradient",
+        "color": "#0f3460",
+        "colorBottom": "#16213e"
+      },
+      "effects": [
+        { "type": "shake", "intensity": 0.7, "duration": 600 }
+      ],
+      "portraits": [
+        {
+          "path": "tlipoca_1.png",
+          "position": "CENTER",
+          "scale": 1.0,
+          "animations": [
+            { "type": "shake", "intensity": 6, "frequency": 0.06, "duration": 600 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s_flash",
+      "speaker": { "text": "特莉波卡", "color": "red" },
+      "text": "这是全屏白闪 + 黑场过场。",
+      "next": "s3",
+      "background_image": { "type": "color", "color": "#102030" },
+      "effects": [
+        { "type": "flash", "intensity": 0.9, "duration": 350, "color": "#ffffff" },
+        { "type": "fade", "intensity": 0.8, "duration": 500 }
+      ],
+      "portraits": [
+        { "path": "leaf.png", "position": "LEFT", "scale": 0.8 }
+      ]
+    },
+    {
+      "id": "s3",
+      "speaker": { "text": "小叶子", "color": "aqua" },
+      "text": "小幅缩放 + 轻轻旋转：立绘围绕底部中心原地缩放，不再乱飞。",
+      "next": "s_audio",
+      "background_image": {
+        "type": "color",
+        "color": "#0b1020"
+      },
+      "portraits": [
+        {
+          "path": "leaf.png",
+          "position": "CENTER",
+          "scale": 0.9,
+          "animations": [
+            { "type": "scale", "from": 0.6, "to": 0.9, "duration": 900, "easing": "EASE_OUT_BACK" },
+            { "type": "rotate", "from": -10, "to": 0, "duration": 800, "easing": "EASE_OUT_CUBIC" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s_audio",
+      "speaker": { "text": "特莉波卡", "color": "red" },
+      "text": "这条配置了 BGM、SE 与打字音（声音文件需放在 assets/dialog/sounds 下才能听到）。",
+      "next": "s_input",
+      "background_image": { "type": "gradient", "color": "#2a1a4e", "colorBottom": "#1a1030" },
+      "sound": {
+        "bgm": "dialog:bgm_theme",
+        "se": "dialog:se_click",
+        "voice": "dialog:voice_default"
+      },
+      "portraits": [
+        { "path": "tlipoca.png", "position": "CENTER", "scale": 0.9 }
+      ]
+    },
+    {
+      "id": "s_input",
+      "speaker": { "text": "特莉波卡", "color": "red" },
+      "text": "来，试一下文本输入控制：在下方输入你的名字并回车。",
+      "next": "s_name",
+      "background_image": { "type": "gradient", "color": "#1a2a3e", "colorBottom": "#16213e" },
+      "text_control": {
+        "type": "wait_for_input",
+        "input_hint": "请输入玩家ID...",
+        "variable": "player_name",
+        "max_length": 20
+      }
+    },
+    {
+      "id": "s_name",
+      "speaker": { "text": "旁白", "color": "white" },
+      "text": "刚才你输入的名字已被记录，欢迎你，{player_name}！接下来这条会自动停顿后推进。",
+      "next": "s_auto",
+      "background_image": { "type": "color", "color": "#1a1a2e" },
+      "text_control": { "type": "auto_pause", "duration": 1800 }
+    },
+    {
+      "id": "s_auto",
+      "speaker": { "text": "旁白", "color": "white" },
+      "text": "自动停顿结束，自动推进到这里。（每条文字都有打字音效，可打开声音体验。）",
+      "next": "s_cutscene",
+      "background_image": { "type": "gradient", "color": "#202838", "colorBottom": "#141a28" }
+    },
+    {
+      "id": "s_cutscene",
+      "speaker": { "text": "系统", "color": "yellow" },
+      "text": "接下来播放全屏过场（你会看到黑屏覆盖慢慢出现再淡出——若没放图则显示黑场）。",
+      "next": "s_item",
+      "background_image": { "type": "color", "color": "#0a0a12" },
+      "cutscene": {
+        "image": "cutscene/title.png",
+        "duration": 1200,
+        "fadeIn": 300,
+        "fadeOut": 300
+      }
+    },
+    {
+      "id": "s_item",
+      "speaker": { "text": "系统", "color": "gold" },
+      "text": "你会收到一些物品（弹窗提示在这里出现）。",
+      "next": "s4",
+      "background_image": { "type": "color", "color": "#1a1a2e" },
+      "display_items": [
+        { "item": "minecraft:diamond", "count": 2, "give": true }
+      ],
+      "portraits": [
+        { "path": "tlipoca_2.png", "position": "CENTER", "scale": 0.9 }
+      ]
+    },
+    {
+      "id": "s4",
+      "speaker": { "text": "特莉波卡", "color": "red" },
+      "text": "强震感过场压轴！然后结束。",
+      "next": "end",
+      "effects": [
+        { "type": "shake", "intensity": 1.0, "duration": 900 }
+      ],
+      "portraits": [
+        {
+          "path": "tlipoca_2.png",
+          "position": "CENTER",
+          "animations": [
+            { "type": "shake", "intensity": 10, "frequency": 0.09, "duration": 900 }
+          ]
+        }
+      ],
+      "options": [
+        { "text": "好啊，再见！", "target": "end" }
+      ]
+    },
+    {
+      "id": "end",
+      "speaker": { "text": "小叶子", "color": "aqua" },
+      "text": "感谢体验！（/dialog show native_render_story 重播）",
+      "background_image": {
+        "type": "gradient",
+        "color": "#1a1a2e",
+        "colorBottom": "#0f3460"
+      }
+    }
+  ]
+}

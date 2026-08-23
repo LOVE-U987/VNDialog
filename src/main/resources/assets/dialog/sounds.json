@@ -1,0 +1,32 @@
+{
+  "bgm_theme": {
+    "subtitle": "dialog.subtitle.bgm",
+    "sounds": [
+      { "name": "minecraft:music_disc.cat", "stream": true }
+    ]
+  },
+  "se_click": {
+    "subtitle": "dialog.subtitle.se_click",
+    "sounds": [
+      "minecraft:ui.button.click"
+    ]
+  },
+  "se_confirm": {
+    "subtitle": "dialog.subtitle.se_confirm",
+    "sounds": [
+      "minecraft:ui.button.click"
+    ]
+  },
+  "type_sound": {
+    "subtitle": "dialog.subtitle.type",
+    "sounds": [
+      { "name": "minecraft:block.note_block.pling", "volume": 0.5, "pitch": 1.1 }
+    ]
+  },
+  "voice_default": {
+    "subtitle": "dialog.subtitle.voice",
+    "sounds": [
+      "minecraft:entity.experience_orb.pickup"
+    ]
+  }
+}

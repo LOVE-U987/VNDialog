@@ -18,6 +18,10 @@ public class DisplayItemInfo {
     @SerializedName("nbt")
     private String nbt;
 
+    // 是否在展示时给予玩家该物品（并弹出通知）
+    @SerializedName("give")
+    private boolean give = false;
+
     public DisplayItemInfo() {}
 
     public DisplayItemInfo(String itemId, int count, String nbt) {
@@ -48,5 +52,13 @@ public class DisplayItemInfo {
 
     public void setNbt(String nbt) {
         this.nbt = nbt;
+    }
+
+    public boolean isGive() {
+        return give;
+    }
+
+    public void setGive(boolean give) {
+        this.give = give;
     }
 }

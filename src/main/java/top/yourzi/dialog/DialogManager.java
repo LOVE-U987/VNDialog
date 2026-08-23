@@ -16,6 +16,8 @@ import net.neoforged.api.distmarker.OnlyIn;
 import top.yourzi.dialog.model.DialogEntry;
 import top.yourzi.dialog.model.DialogOption;
 import top.yourzi.dialog.model.DialogSequence;
+import top.yourzi.dialog.model.PortraitAnimationData;
+import top.yourzi.dialog.model.PortraitAnimationDataDeserializer;
 import top.yourzi.dialog.ui.DialogScreen;
 import top.yourzi.dialog.network.*; // Import all packet classes
 import java.io.BufferedReader;
@@ -36,7 +38,9 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 public class DialogManager {
-    public static final Gson GSON = new GsonBuilder().create();
+    public static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapter(PortraitAnimationData.class, new PortraitAnimationDataDeserializer())
+            .create();
     private static final DialogManager INSTANCE = new DialogManager();
 
     // 服务端: 存储所有从数据包加载的对话序列
@@ -54,6 +58,9 @@ public class DialogManager {
     private static boolean isAutoPlaying = false;
     // 存储当前对话的玩家名称
     private String currentDialogPlayerName;
+
+    // 对话内变量（wait_for_input 写入，供后续条目 {@变量} 使用）
+    private final Map<String, String> dialogVariables = new HashMap<>();
 
     private DialogManager() {}
     
@@ -525,6 +532,22 @@ public class DialogManager {
      */
     public static void stopAutoPlay() {
         isAutoPlaying = false;
+    }
+
+    /**
+     * (客户端) 设置对话变量。
+     */
+    @OnlyIn(Dist.CLIENT)
+    public void setDialogVariable(String key, String value) {
+        dialogVariables.put(key, value == null ? "" : value);
+    }
+
+    /**
+     * (客户端) 获取对话变量，不存在返回 null。
+     */
+    @OnlyIn(Dist.CLIENT)
+    public String getDialogVariable(String key) {
+        return dialogVariables.get(key);
     }
     
     /**

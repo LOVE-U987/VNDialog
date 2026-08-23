@@ -53,6 +53,22 @@ public class DialogEntry {
     @SerializedName("background_image")
     private BackgroundImageInfo backgroundImage;
 
+    // 过场特效列表（如屏幕震动）
+    @SerializedName("effects")
+    private List<DialogEffect> effects;
+
+    // 音效配置（BGM / SE / 语音）
+    @SerializedName("sound")
+    private SoundInfo sound;
+
+    // 全屏过场配置
+    @SerializedName("cutscene")
+    private CutsceneInfo cutscene;
+
+    // 文本交互控制（wait_for_click / wait_for_input / auto_pause）
+    @SerializedName("text_control")
+    private TextControlInfo textControl;
+
     public DialogEntry() {
     }
 

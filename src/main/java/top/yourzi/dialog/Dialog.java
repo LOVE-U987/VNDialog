@@ -9,6 +9,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import top.yourzi.dialog.audio.DialogSoundEvents;
 import top.yourzi.dialog.network.NetworkHandler;
 
 import java.beans.EventHandler;
@@ -30,6 +31,9 @@ public class Dialog {
 
         // 注册网络包处理器
         modEventBus.addListener(NetworkHandler::register);
+
+        // 注册声音事件
+        DialogSoundEvents.register(modEventBus);
 
     }
 }
