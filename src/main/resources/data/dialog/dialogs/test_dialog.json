@@ -25,6 +25,7 @@
         {"path": "leaf.png", "position": "LEFT", "brightness": 1.0},
         {"path": "tlipoca.png", "position": "RIGHT", "brightness": 0.5}
       ],
+      "sound": { "bgm": "dialog:bgm_track2", "bgm_action": "switch" },
       "next": "2"
     },
     {
@@ -34,7 +35,8 @@
       "portraits": [
         {"path": "leaf.png", "position": "LEFT", "brightness": 0.5},
         {"path": "tlipoca.png", "position": "RIGHT", "brightness": 1.0}
-      ]
+      ],
+      "sound": { "bgm_action": "next" }
     },
     {
       "id": "3",

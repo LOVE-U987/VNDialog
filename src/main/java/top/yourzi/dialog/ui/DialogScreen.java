@@ -458,14 +458,22 @@ public class DialogScreen extends Screen {
     }
 
     /**
-     * 播放当前对话条目的音频配置。
+     * 播放当前对话条目的音频配置（BGM 支持 JSON 指令驱动）。
      */
     private void triggerEntryAudio() {
         SoundInfo sound = dialogEntry.getSound();
         if (sound == null || !sound.hasAny()) return;
         DialogAudioManager audio = DialogAudioManager.getInstance();
-        if (sound.getBgm() != null && !sound.getBgm().isEmpty()) {
+        String action = sound.getBgmAction();
+        // 指令驱动的 BGM 控制
+        if (action != null && !action.isEmpty()) {
+            audio.handleAction(action, sound.getBgm());
+        } else if (sound.getBgm() != null && !sound.getBgm().isEmpty()) {
+            // 向后兼容：仅有 bgm 字段时直接播放
             audio.playBgm(sound.getBgm());
+        }
+        if (sound.getBgmVolume() != null) {
+            audio.setVolume(sound.getBgmVolume());
         }
         if (sound.getSe() != null && !sound.getSe().isEmpty()) {
             audio.playSe(sound.getSe());
@@ -1263,6 +1271,7 @@ public class DialogScreen extends Screen {
     public void tick() {
         super.tick();
         updateAutoPlayButtonText(); 
+        if (this.bgmControlBar != null) this.bgmControlBar.refresh(); 
 
 
     
