@@ -465,12 +465,12 @@ public class DialogScreen extends Screen {
         if (sound == null || !sound.hasAny()) return;
         DialogAudioManager audio = DialogAudioManager.getInstance();
         String action = sound.getBgmAction();
-        // 指令驱动的 BGM 控制
+        // 指令驱动的 BGM 控制（start/play/switch/pause/resume/stop/next/prev）
         if (action != null && !action.isEmpty()) {
             audio.handleAction(action, sound.getBgm());
         } else if (sound.getBgm() != null && !sound.getBgm().isEmpty()) {
-            // 向后兼容：仅有 bgm 字段时直接播放
-            audio.playBgm(sound.getBgm());
+            // 向后兼容：仅有 bgm 字段时视作 play
+            audio.handleAction("play", sound.getBgm());
         }
         if (sound.getBgmVolume() != null) {
             audio.setVolume(sound.getBgmVolume());
@@ -1271,7 +1271,8 @@ public class DialogScreen extends Screen {
     public void tick() {
         super.tick();
         updateAutoPlayButtonText(); 
-        if (this.bgmControlBar != null) this.bgmControlBar.refresh(); 
+        // 推进 BGM 淡入/淡出过渡
+        DialogAudioManager.getInstance().tick(); 
 
 
     

@@ -18,13 +18,6 @@
   "dialog.ui.close_history": "Close History",
   "dialog.ui.esc": "Exit Dialog",
   "dialog.ui.confirm_esc": "Are you sure you want to exit the current dialog?",
-  "dialog.ui.bgm.prev": "Previous track",
-  "dialog.ui.bgm.next": "Next track",
-  "dialog.ui.bgm.pause": "Play / Pause",
-  "dialog.ui.bgm.stop": "Stop",
-  "dialog.ui.bgm.loop": "Loop",
-  "dialog.ui.bgm.vol_up": "Volume +",
-  "dialog.ui.bgm.vol_down": "Volume −",
   
   "dialog.manager.requesting_from_server": "Requesting dialog files from server...",
   "dialog.manager.loading": "Loading dialog files, path: %s",
