@@ -62,9 +62,16 @@ GitHub 测试分支上验证，**不影响主分支 `neoforge-1.21.1` 的既有�
 
 ---
 
-## 4. UI 改进目标（待用户确认候选）
+## 4. UI 改进目标（**已实现：对话历史回顾 UI**）
 
-知识库原生方案效果清单里标注为「难」或需外部库项的，是原生不适合的候选，在 Web UI 里 WebView 天然可做。暂时列出 2 个候选，**等待用户挑 1 个**：
+知识库原生方案效果清单里标注为「难」或需外部库项的，是原生不适合的候选，在 Web 里天然可做：
+
+1. **对话历史记录回顾 UI** ✅ **已实现**——原生是简单列表+滚动，Web 端做成卡片/时间线 + 立绘缩略 + 打字机动画 + 多端 CSS 动效。
+2. **角色立绘 Live2D / Spine 动态立绘**（Web 可用 Live2D SDK 骨骼动画）——留存为后续目标。
+3. **选项选择动效**（Web 端 CSS 弹簧/辉光/滑入、文字描边）——可复用同一桥接通道追加。
+4. **Typewriter + 逐字音效 / 文字渐变描边**——本次历史回顾正文已内置打字机（typewriter）动画。
+
+> 依据原始诉求「额外实现一下 UI 改进」+ 分支验证导向，本实验选定 **历史记录回顾 UI** 并完成了可独立运行的 HTML/CSS/JS 页面与 Java 反射桥骨架。
 
 1. **对话历史记录回顾 UI**（原生现为列表+滚动，Web 端可做漂亮的卡片/时间线 + 立绘缩略 + CSS 动画）。
 2. **角色立绘 Live2D / Spine 动态立绘**（原生做精灵图/序列帧有限，Web 可用 Live2D SDK 骨骼动画）。
@@ -97,29 +104,31 @@ GitHub 测试分支上验证，**不影响主分支 `neoforge-1.21.1` 的既有�
 
 ---
 
-## 6. 目录/文件规划（提交分支后按此实现）
+## 6. 已实现文件清单
 
 ```
-src/main/resources/assets/dialog/web/            # Web 前端资源
-  ├─ index.html                                  # 改进项入口
-  ├─ css/style.css
-  └─ js/ui.js                                    # 与 Webview 桥通信
-src/main/java/top/yourzi/dialog/ui/webview/      # Java 桥接层
-  ├─ WebviewDialogBridge.java                   # 打开/关闭 Webview，数据打包
-  ├─ WebviewMessageHandler.java                 # 从 Webview 收到的消息 → DialogManager
-build.gradle                                    # 增加 WebGUI (Modrinth) + MCEF 依赖段
-docs/… (本文件)                                   # 设计与使用说明
+src/main/resources/assets/dialog/web/            # Web 前端资源（已实现，可独立运行）
+  ├─ index.html                                  # 历史回顾入口（HUD/GUI 加载）
+  ├─ preview.html                               # 独立预览页（浏览器直接打开测试）
+  ├─ preview-data.js                             # 脱离游戏的演示数据
+  ├─ css/style.css                              # 卡片/时间线/打字机/caret 动画
+  └─ js/ui.js                                   # 桥接抽象 + 渲染 + typewriter + 消息监听
+src/main/java/top/yourzi/dialog/ui/webview/      # Java 桥接层（已实现，无 WebGUI 编译依赖）
+  └─ WebviewDialogBridge.java       # 反射式打开 WebGUI 浮层 + 数据序列化 (buildJsonPayload)
+build.gradle                      # 已加入【可选/注释】的 Modrinth + Cinemamod 依赖段
+docs/… (本文件)                      # 设计与使用说明
 ```
 
-> 具体类名/API 依赖 WebGUI 最终我们在有环境下验证确认；此处为草案。
+> Java 侧采用**反射**，不 `import` 任何 WebGUI 包 → 离线可编译；仅在运行环境装了 WebGUI 时才反射打开页面。
 
 ---
 
 ## 7. 测试/验收
 
-- 分支独立，不影响 `neoforge-1.21.1`。
-- 验收在联网机器：`gradlew build` 成功；游戏内加载 WebGUI 页面、数据/交互双向链路通过。
-- 本（受限）环境：至少跑通*无 Webview Api 引用、独立部分*的 `gradlew compileJava --offline` 交叉验证。
+- 分支独立，不影响 `neoforge-1.21.1`（实验代码仅存在于 `experiment/mcef-webgui-ui`）。
+- ✅ **本机已验证**：`gradlew compileJava --offline --no-daemon` → `BUILD SUCCESSFUL`（包含新增 `WebviewDialogBridge`，未装 WebGUI 也能编译）。
+- ✅ **前端已可独立测试**：浏览器直接打开 `src/main/resources/assets/dialog/web/preview.html` 即可查看历史回顾卡片效果。
+- ⏳ **联网环境待验证**：`gradlew build` + 装 WebGUI/MCEF mod 后，游戏内打开 WebGUI 页面、数据/交互双向链路。
 
 ---
 
@@ -131,7 +140,7 @@ docs/… (本文件)                                   # 设计与使用说明
 
 ---
 
-## 待用户确认
-- [ ] 选用哪个 UI 改进（推荐：历史记录 UI 或 选项动效）
-- [ ] 确认采用「外部依赖 WebGUI」方案（方案 A）作为交付目标
-- [ ] 在受限环境的本机目标：完成「无依赖部分编译」；完整编译验收留待有网络环境
+## 后续说明（已按分支自主推进的首版实现）
+- ✅ UI 改进已选定并在分支实现：**对话历史回顾 UI**（HTML/CSS/JS 可独立预览 + Java 反射桥）。
+- ✅ 采用「VNDialog 依赖/桥接外部 WebGUI」思路，Java 侧零 WebGUI 编译依赖，离线可编译。
+- ✅ 本机已通过 `compileJava --offline`；完整联网编译/游戏内联测留待有网络环境。

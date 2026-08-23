@@ -28,6 +28,20 @@ sourceSets.main.resources {
 
 repositories {
     // Add here additional repositories if required by some of the dependencies below.
+
+    // ===== [WEBGUI / MCEF 实验分支 · 可选] =====
+    // 仅当要启用 MCEF+WebGUI 实验（联网编译/运行）时，取消下方注释。
+    // 默认不开启：本项目为离线/受限环境，引入会在拉取时失败。
+    // WebGUI 库：https://github.com/mc-webgui/webgui  (NeoForge 1.21.1 Supported)
+    // MCEF  库：https://github.com/CinemaMod/mcef     (maven.cinemamod.com)
+    // maven {
+    //     name = 'Modrinth'
+    //     url = 'https://api.modrinth.com/maven'
+    // }
+    // maven {
+    //     name = 'Cinemamod'
+    //     url = 'https://maven2.cinemamod.com/repositories/releases'
+    // }
 }
 
 base {
@@ -128,6 +142,12 @@ dependencies {
     // compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
     // We add the full version to localRuntime, not runtimeOnly, so that we do not publish a dependency on it
     // localRuntime "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
+
+    // ===== [WEB UI / MCEF 实验分支：可选运行时依赖] =====
+    // 本项目采用「反射式桥接」，Java 侧不引用这些库即可离线编译；
+    // 下方依赖仅供想要直接从构建期引用 WebGUI API 做强类型接入时取消注释（需有网络）。
+    // implementation "com.mcwebgui:webgui-neoforge:${webgui_version}"
+    // localRuntime "com.mcwebgui:webgui-neoforge:${webgui_version}"
 
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar

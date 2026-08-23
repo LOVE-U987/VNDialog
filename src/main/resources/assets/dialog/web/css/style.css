@@ -1,0 +1,191 @@
+/* ============================================================
+   VNDialog · 对话历史回顾 UI
+   WebGUI / MCEF HUD overlay 样式（自适应透明背景）
+   ============================================================ */
+:root {
+  --bg-gradient: linear-gradient(160deg, #0f1420 0%, #1a2233 100%);
+  --accent: #67e8ff;
+  --accent-2: #a78bfa;
+  --text: #e6edf5;
+  --text-dim: #8fa3b8;
+  --card-bg: rgba(255, 255, 255, 0.06);
+  --card-border: rgba(255, 255, 255, 0.12);
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --font: "Microsoft YaHei", "PingFang SC", "Segoe UI", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  color: var(--text);
+  /* HUD overlay：页面本身透明，由各卡片/栏承载视觉 */
+  background: transparent;
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ---- 顶部标题栏 ---- */
+#topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 22px;
+  background: var(--bg-gradient);
+  box-shadow: var(--shadow);
+  z-index: 10;
+}
+#topbar h1 {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.icon-btn {
+  width: 34px; height: 34px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform .15s ease, background .2s ease, border-color .2s ease;
+}
+.icon-btn:hover { background: rgba(103, 232, 255, 0.18); border-color: var(--accent); transform: scale(1.06); }
+
+/* ---- 时间线容器 ---- */
+.timeline {
+  height: 100%;
+  padding: 76px 24px 40px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+.timeline::-webkit-scrollbar { width: 8px; }
+.timeline::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 4px; }
+
+/* ---- 历史卡片 ---- */
+.history-card {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding: 15px 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transform: translateY(22px);
+  animation: card-in .38s cubic-bezier(.22, .9, .36, 1) forwards;
+  transition: transform .18s ease, border-color .18s ease;
+}
+.history-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(22px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 时间线左侧竖线 + 圆点 */
+.history-card::before {
+  content: "";
+  position: absolute;
+  left: 6px; top: 0; bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  opacity: .35;
+}
+.history-card::after {
+  content: "";
+  position: absolute;
+  left: 1px; top: 14px;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #fff, var(--accent));
+  box-shadow: 0 0 10px var(--accent);
+}
+
+/* ---- 立绘缩略 ---- */
+.history-portrait {
+  width: 46px; height: 46px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  object-fit: cover;
+  background: rgba(0,0,0,.25);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 4px 12px rgba(0,0,0,.35);
+}
+
+/* ---- 说话者与正文 ---- */
+.history-body { flex: 1; min-width: 0; }
+.history-speaker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 5px;
+}
+.history-speaker-time {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 400;
+  margin-left: auto;
+}
+.history-text {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text);
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+/* ---- 打字光标 ---- */
+.history-text .caret {
+  display: inline-block;
+  width: 2px; height: 1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  animation: blink 0.8s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ---- 空态 ---- */
+.empty-state {
+  text-align: center;
+  color: var(--text-dim);
+  padding: 60px 20px;
+  font-size: 15px;
+}
+
+/* ---- 底部桥接状态条 ---- */
+.bridge-status {
+  position: fixed;
+  left: 50%; bottom: 18px;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: rgba(10, 14, 24, 0.85);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  box-shadow: var(--shadow);
+}
+
+/* ---- 响应式 ---- */
+@media (max-width: 600px) {
+  .timeline { padding: 70px 12px 32px; }
+  .history-card { padding: 12px 12px; gap: 10px; }
+  .history-portrait { width: 38px; height: 38px; }
+  .history-text { font-size: 14px; }
+}

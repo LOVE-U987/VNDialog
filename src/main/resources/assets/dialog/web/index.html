@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VNDialog · 对话历史回顾</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<!-- ===================== 顶部标题栏 ===================== -->
+<header id="topbar">
+  <h1 id="title">对话记录</h1>
+  <div class="topbar-actions">
+    <button id="btn-close" class="icon-btn" title="关闭">✕</button>
+  </div>
+</header>
+
+<!-- ===================== 主滚动时间线 ===================== -->
+<main id="timeline" class="timeline" aria-label="对话历史">
+  <!-- 由 JS 动态注入 .history-card -->
+</main>
+
+<!-- ===================== 提示条（桥接状态） ===================== -->
+<div id="bridge-status" class="bridge-status" hidden></div>
+
+<!-- 前端的对话历史数据注入点（JSON 由 Java/预览提供） -->
+<script id="history-data" type="application/json">[]</script>
+<script src="js/ui.js"></script>
+</body>
+</html>

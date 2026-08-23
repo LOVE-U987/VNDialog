@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VNDialog 历史回顾 · 独立预览</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* 独立预览：给页面一个深色底，模拟 HUD 之上的可视效果 */
+  body { background: radial-gradient(ellipse at 30% 20%, #1b2740 0%, #0a0f1a 65%); }
+  #topbar { position: sticky; }
+  .timeline { height: auto; }
+  .preview-note {
+    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+    font-size: 12px; color: #9fb3c8; background: rgba(0,0,0,.55);
+    padding: 6px 14px; border-radius: 999px; z-index: 99;
+  }
+</style>
+</head>
+<body>
+<header id="topbar">
+  <h1>对话记录 · 独立预览</h1>
+  <button id="btn-close" class="icon-btn" title="关闭">✕</button>
+</header>
+<main id="timeline" class="timeline"></main>
+<div class="preview-note">预览模式：数据来自 preview-data.js · 在 WebGUI 中由 Mod 注入真实历史</div>
+
+<script id="history-data" type="application/json">[]</script>
+<script src="preview-data.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
