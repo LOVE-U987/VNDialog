@@ -638,7 +638,8 @@ public class DialogScreen extends Screen {
                         DialogManager.getInstance().recordChoiceForCurrentDialog(option.getText(Minecraft.getInstance().level.registryAccess(), playerName).getString());
                         DialogManager.getInstance().jumpToDialog(option.getTargetId());
                     },
-                    option.getText(Minecraft.getInstance().level.registryAccess(), playerName) // Component message
+                    option.getText(Minecraft.getInstance().level.registryAccess(), playerName), // Component message
+                    i * 100 // stagger delay
             );
             
             optionButtons.add(button);

@@ -1,0 +1,20 @@
+{
+  "id": "debug_basic",
+  "title": "Debug Basic Test",
+  "description": "Simple debug test for dialog rendering",
+  "start": "start",
+  "entries": [
+    {
+      "id": "start",
+      "speaker": {"translate": "dialog.speaker.test", "color": "white"},
+      "text": "This is a test dialog. If you can see this, the dialog is rendering!",
+      "next": "end"
+    },
+    {
+      "id": "end",
+      "speaker": {"translate": "dialog.speaker.test", "color": "green"},
+      "text": "Test complete!",
+      "next": null
+    }
+  ]
+}

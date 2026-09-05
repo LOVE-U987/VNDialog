@@ -1,0 +1,155 @@
+{
+  "id": "comprehensive_test",
+  "title": "全部功能测试",
+  "description": "全面测试所有 8 个新功能",
+  "start": "intro",
+  "ui_mode": "popup",
+  "entries": [
+    {
+      "id": "intro",
+      "speaker": {"translate": "dialog.speaker.system", "color": "gold"},
+      "text": "欢迎使用全部功能测试！这个对话将演示所有新功能。",
+      "next": "feature1"
+    },
+    
+    {
+      "id": "feature1",
+      "speaker": {"translate": "dialog.speaker.system", "color": "yellow"},
+      "text": "功能 1：多物品给予",
+      "next": "feature1_show"
+    },
+    {
+      "id": "feature1_show",
+      "speaker": {"translate": "dialog.speaker.system", "color": "yellow"},
+      "text": "这一行会在对话框上方展示物品：",
+      "display_items": [
+        {"item": "minecraft:diamond", "count": 1, "give": true},
+        {"item": "minecraft:gold_ingot", "count": 64, "give": true},
+        {"item": "minecraft:emerald", "count": 32, "give": true}
+      ],
+      "next": "feature2"
+    },
+    
+    {
+      "id": "feature2",
+      "speaker": {"translate": "dialog.speaker.system", "color": "light_purple"},
+      "text": "功能 2：屏幕中心物品提示 (物品显示在对话框上方)",
+      "next": "feature2_show"
+    },
+    {
+      "id": "feature2_show",
+      "speaker": {"translate": "dialog.speaker.system", "color": "light_purple"},
+      "text": "这些物品将以动画 toast 效果显示在对话框上方的屏幕中心。",
+      "display_items": [
+        {"item": "minecraft:netherite_ingot", "count": 1, "give": true},
+        {"item": "minecraft:enchanted_golden_apple", "count": 1, "give": true}
+      ],
+      "next": "feature3"
+    },
+    
+    {
+      "id": "feature3",
+      "speaker": {"translate": "dialog.speaker.system", "color": "blue"},
+      "text": "功能 3：BGM 循环播放持久性",
+      "sound": {"bgm": "dialog:test_bgm", "bgm_action": "start"},
+      "next": "feature3_explain"
+    },
+    {
+      "id": "feature3_explain",
+      "speaker": {"translate": "dialog.speaker.system", "color": "blue"},
+      "text": "上方开始的音乐将持续播放到所有对话条目，直到明确停止或更改。",
+      "next": "feature3_cont"
+    },
+    {
+      "id": "feature3_cont",
+      "speaker": {"translate": "dialog.speaker.system", "color": "blue"},
+      "text": "您可以用 bgm_action: 'switch' 切换 BGM，或用 'stop' 停止",
+      "sound": {"bgm_action": "switch", "bgm": "dialog:test_bgm_2"},
+      "next": "feature4"
+    },
+    
+    {
+      "id": "feature4",
+      "speaker": {"translate": "dialog.speaker.system", "color": "dark_aqua"},
+      "text": "功能 4：动画立绘 (支持 GIF/PNG 序列)",
+      "portraits": [
+        {"path": "animated_test.gif", "position": "CENTER", "animationType": "FADE_IN"}
+      ],
+      "next": "feature4_explain"
+    },
+    {
+      "id": "feature4_explain",
+      "speaker": {"translate": "dialog.speaker.system", "color": "dark_aqua"},
+      "text": "立绘现在可以是 GIF 文件或 PNG 序列 (例如：character_0001.png, character_0002.png 等)",
+      "portraits": [
+        {"path": "sequence_test_0001.png", "position": "CENTER"},
+        {"path": "sequence_test_0002.png", "position": "CENTER", "display_duration": 2000}
+      ],
+      "next": "feature5"
+    },
+    
+    {
+      "id": "feature5",
+      "speaker": {"translate": "dialog.speaker.system", "color": "green"},
+      "text": "功能 5：增强的 UI 动画",
+      "next": "feature5_details"
+    },
+    {
+      "id": "feature5_details",
+      "speaker": {"translate": "dialog.speaker.system", "color": "green"},
+      "text": "所有 UI 元素现在都有流畅的动画：对话框进出、选项按钮、提示工具和确认屏幕。",
+      "next": "feature6"
+    },
+    {
+      "id": "feature6",
+      "speaker": {"translate": "dialog.speaker.system", "color": "red"},
+      "text": "功能 6：动态元素移动",
+      "next": "feature6_move"
+    },
+    {
+      "id": "feature6_move",
+      "speaker": {"translate": "dialog.speaker.system", "color": "red"},
+      "text": "背景、立绘和 CG 现在可以使用 x/y/rotation 动画和震动效果进行移动。",
+      "portraits": [
+        {"path": "demo_char.png", "position": "LEFT", "x": 0, "y": 0, "rotation": 0, "shake": 5}
+      ],
+      "background_image": {"path": "demo_bg.png", "x": 0, "y": 0, "rotation": 0, "zoom": 1.0},
+      "next": "feature7"
+    },
+    
+    {
+      "id": "feature7",
+      "speaker": {"translate": "dialog.speaker.system", "color": "gold"},
+      "text": "功能 7：非侵入式弹窗模式",
+      "next": "feature7_explain"
+    },
+    {
+      "id": "feature7_explain",
+      "speaker": {"translate": "dialog.speaker.system", "color": "gold"},
+      "text": "本对话序列在 JSON 头部声明了 ui_mode:\"popup\"，因此整体以非侵入式小弹窗显示，同时您可以继续正常游戏。",
+      "command": "tellraw @a {\"text\":\"弹窗模式已激活！您仍可以继续游戏!\"}",
+      "next": "feature8"
+    },
+    
+    {
+      "id": "feature8",
+      "speaker": {"translate": "dialog.speaker.system", "color": "aqua"},
+      "text": "功能 8：KUBEGS 联动",
+      "next": "feature8_explain"
+    },
+    {
+      "id": "feature8_explain",
+      "speaker": {"translate": "dialog.speaker.system", "color": "aqua"},
+      "text": "KUBEGS 可以监听键盘/鼠标操作来切换对话、控制游戏状态和修改玩家数据。",
+      "sound": {"bgm_action": "stop"},
+      "next": "end"
+    },
+    
+    {
+      "id": "end",
+      "speaker": {"translate": "dialog.speaker.system", "color": "green"},
+      "text": "全部功能测试结束！所有功能已演示完毕。",
+      "command": "tellraw @a {\"text\":\"测试成功完成!\"}"
+    }
+  ]
+}

@@ -11,7 +11,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 public class Config {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
     
-    // 对话框UI配置
+    // 对话框 UI 配置
     public static final ModConfigSpec.ConfigValue<Integer> DIALOG_BOX_WIDTH; // 对话框宽度
     public static final ModConfigSpec.ConfigValue<Integer> DIALOG_BOX_HEIGHT; // 对话框高度
     public static final ModConfigSpec.ConfigValue<Integer> DIALOG_BOX_PADDING; // 对话框内边距
@@ -19,6 +19,7 @@ public class Config {
     public static final ModConfigSpec.ConfigValue<Integer> DIALOG_BACKGROUND_COLOR; // 对话框背景颜色
     public static final ModConfigSpec.ConfigValue<Integer> DIALOG_BACKGROUND_OPACITY; // 对话框背景不透明度
     public static final ModConfigSpec.ConfigValue<Boolean> USE_CUSTOM_BUTTON_TEXTURE; // 是否使用自定义按钮纹理
+    public static final ModConfigSpec.ConfigValue<Boolean> IMMERSIVE_DIALOG_ENABLED; // 是否启用沉浸式对话框
 
     // 立绘配置
     public static final ModConfigSpec.ConfigValue<Boolean> ENABLE_PORTRAIT_ANIMATIONS; // 启用立绘动画
@@ -27,12 +28,12 @@ public class Config {
     public static final ModConfigSpec.ConfigValue<Boolean> IS_PAUSE_SCREEN; // 是否在对话时暂停游戏（仅单人）
     public static final ModConfigSpec.ConfigValue<Integer> AUTO_ADVANCE_DELAY; // 自动推进对话延迟 (毫秒)
     public static final ModConfigSpec.ConfigValue<Boolean> SHOW_SPEAKER_NAME; // 显示说话者名称
-    public static final ModConfigSpec.ConfigValue<Integer> TEXT_ANIMATION_SPEED; // 文本逐字显示速度 (每秒字符数，0表示立即显示全部)
+    public static final ModConfigSpec.ConfigValue<Integer> TEXT_ANIMATION_SPEED; // 文本逐字显示速度 (每秒字符数，0 表示立即显示全部)
     
     static {
         BUILDER.comment("对话系统配置").push("dialog");
 
-        BUILDER.comment("对话框UI配置").push("ui");
+        BUILDER.comment("对话框 UI 配置").push("ui");
         DIALOG_BOX_WIDTH = BUILDER
                 .comment("对话框宽度")
                 .define("dialogBoxWidth", 320);
@@ -43,14 +44,17 @@ public class Config {
                 .comment("对话框内边距")
                 .define("dialogBoxPadding", 10);
         DIALOG_TEXT_COLOR = BUILDER
-                .comment("对话文本默认颜色 (ARGB格式)")
+                .comment("对话文本默认颜色 (ARGB 格式)")
                 .define("dialogTextColor", 0xFFFFFFFF);
         DIALOG_BACKGROUND_COLOR = BUILDER
-                .comment("对话框背景默认颜色 (RGB格式)")
+                .comment("对话框背景默认颜色 (RGB 格式)")
                 .define("dialogBackgroundColor", 0x000000);
         DIALOG_BACKGROUND_OPACITY = BUILDER
                 .comment("对话框背景不透明度 (0-255)")
                 .define("dialogBackgroundOpacity", 200);
+        IMMERSIVE_DIALOG_ENABLED = BUILDER
+                .comment("是否启用沉浸式对话框 (居中显示)")
+                .define("immersiveDialogEnabled", false);
         BUILDER.pop();
 
         BUILDER.comment("立绘配置").push("portrait");
@@ -70,10 +74,10 @@ public class Config {
                 .comment("是否显示说话者的名称")
                 .define("showSpeakerName", true);
         TEXT_ANIMATION_SPEED = BUILDER
-                .comment("文本逐字显示的速度（每秒字符数，设置为0则立即显示全部文本）")
+                .comment("文本逐字显示的速度（每秒字符数，设置为 0 则立即显示全部文本）")
                 .defineInRange("textAnimationSpeed", 20, 0, 1000);
         USE_CUSTOM_BUTTON_TEXTURE = BUILDER
-                .comment("是否使用自定义按钮纹理（否则使用Minecraft原版按钮纹理）")
+                .comment("是否使用自定义按钮纹理（否则使用 Minecraft 原版按钮纹理）")
                 .define("useCustomButtonTexture", false);
         BUILDER.pop();
     }

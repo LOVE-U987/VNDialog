@@ -1,0 +1,7 @@
+# VNDialog Chinese Localization
+
+# Category
+category.vndialog=VNDialog
+
+# Key mappings
+key.vndialog.skip=跳过对话 (Skip Dialog)

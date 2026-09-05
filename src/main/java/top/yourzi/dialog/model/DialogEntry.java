@@ -69,6 +69,10 @@ public class DialogEntry {
     @SerializedName("text_control")
     private TextControlInfo textControl;
 
+    // KUBEGS 事件触发
+    @SerializedName("kubegs_events")
+    private KubegsEventInfo kubegsEvents;
+
     public DialogEntry() {
     }
 
@@ -200,5 +204,9 @@ public class DialogEntry {
     
     public boolean hasOptions() {
         return options != null && options.length > 0;
+    }
+    
+    public KubegsEventInfo getKubegsEvents() {
+        return kubegsEvents;
     }
 }

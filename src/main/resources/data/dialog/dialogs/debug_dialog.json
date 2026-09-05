@@ -1,0 +1,23 @@
+{
+  "id": "debug_dialog",
+  "title": "Debug Test Dialog",
+  "description": "Simple dialog to test rendering",
+  "start": "test",
+  "entries": [
+    {
+      "id": "test",
+      "speaker": {"translate": "dialog.speaker.test", "color": "white"},
+      "text": "This is a test dialog. If you can see this, the rendering is working!",
+      "next": "end"
+    },
+    {
+      "id": "end",
+      "speaker": {"translate": "dialog.speaker.test", "color": "green"},
+      "text": "If you see this, the dialog box is rendering correctly.",
+      "display_items": [
+        {"item": "minecraft:diamond", "count": 1, "give": true},
+        {"item": "minecraft:emerald", "count": 1, "give": true}
+      ]
+    }
+  ]
+}

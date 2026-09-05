@@ -1,0 +1,39 @@
+{
+  "id": "test_dialog_001",
+  "title": "Simple Dialog Test",
+  "description": "Basic dialog to test display box rendering",
+  "start": "start",
+  "entries": [
+    {
+      "id": "start",
+      "speaker": {"text": "System"},
+      "text": "This is a test dialog to verify the dialog box is rendering correctly.",
+      "next": "feature_test"
+    },
+    {
+      "id": "feature_test",
+      "speaker": {"text": "Feature Test"},
+      "text": "This dialog tests multiple items, BGM, and animations.",
+      "display_items": [
+        {"item": "minecraft:diamond", "count": 1, "give": true},
+        {"item": "minecraft:iron_ingot", "count": 4, "give": true}
+      ],
+      "sound": {"bgm": "dialog:test_bgm", "bgm_action": "play"},
+      "next": "anim_test"
+    },
+    {
+      "id": "anim_test",
+      "speaker": {"text": "Animation Test"},
+      "text": "This tests animation frame support for portraits.",
+      "portraits": [
+        {"path": "test_portrait.png", "position": "CENTER"}
+      ],
+      "next": "end"
+    },
+    {
+      "id": "end",
+      "speaker": {"text": "System"},
+      "text": "Test dialog completed successfully!"
+    }
+  ]
+}

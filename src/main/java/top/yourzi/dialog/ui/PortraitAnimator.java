@@ -11,6 +11,8 @@ import top.yourzi.dialog.util.Easing;
  * <p>
  * 结果通过 {@link Pose} 返回：offsetX / offsetY 为像素平移增量，
  * scale 为缩放系数，rotation 为角度，alpha 为透明度，shaking 表示是否有抖动偏移。
+ * <p>
+ * 新增：支持持续动画（loop=true）和关键帧插值。
  */
 public class PortraitAnimator {
 
@@ -24,6 +26,7 @@ public class PortraitAnimator {
         public boolean hasScale = false; // 是否出现了 scale 动画
         public float shakeX;
         public float shakeY;
+        public float loopProgress; // 循环动画进度
     }
 
     private final PortraitAnimationData[] animations;
@@ -37,6 +40,7 @@ public class PortraitAnimator {
 
     /**
      * 计算当前时刻的合成位姿。
+     * 支持循环动画（loop）和关键帧插值。
      */
     public Pose compute(long nowMs) {
         Pose pose = new Pose();
@@ -55,21 +59,34 @@ public class PortraitAnimator {
                     pose.offsetX = lerp(anim.getFromX(), anim.getToX(), e);
                     pose.offsetY = lerp(anim.getFromY(), anim.getToY(), e);
                     pose.animated = true;
+                    // 循环动画
+                    if (anim.isLoop()) {
+                        pose.loopProgress = (float) elapsed % dur / dur;
+                    }
                 }
                 case "scale" -> {
                     pose.scale *= lerp(safeScale(anim.getFromScale()), anim.getToScale(), e);
                     pose.hasScale = true;
                     pose.animated = true;
+                    if (anim.isLoop()) {
+                        pose.loopProgress = (float) elapsed % dur / dur;
+                    }
                 }
                 case "fade" -> {
                     float from = anim.hasFromAlpha() ? anim.getFromAlpha() : 1f;
                     float to = anim.hasToAlpha() ? anim.getToAlpha() : 1f;
                     pose.alpha *= lerp(from, to, e);
                     pose.animated = true;
+                    if (anim.isLoop()) {
+                        pose.loopProgress = (float) elapsed % dur / dur;
+                    }
                 }
                 case "rotate" -> {
                     pose.rotation = lerp(anim.getFromRotation(), anim.getToRotation(), e);
                     pose.animated = true;
+                    if (anim.isLoop()) {
+                        pose.loopProgress = (float) elapsed % dur / dur;
+                    }
                 }
                 case "shake" -> {
                     float decay = 1f - Math.max(0f, Math.min(1f, (float) elapsed / dur));

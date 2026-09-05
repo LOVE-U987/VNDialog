@@ -7,10 +7,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import top.yourzi.dialog.Dialog;
 import top.yourzi.dialog.DialogManager;
 import top.yourzi.dialog.model.DialogSequence;
 
@@ -21,15 +17,12 @@ import java.util.Map;
 /**
  * 对话系统命令处理器。
  */
-@EventBusSubscriber(modid = Dialog.MODID)
 public class DialogCommand {
 
     /**
-     * 注册命令。
+     * 注册命令到调度器。
      */
-    @SubscribeEvent
-    public static void onRegisterCommands(RegisterCommandsEvent event) {
-        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         
         // 注册 /dialog 命令
         dispatcher.register(

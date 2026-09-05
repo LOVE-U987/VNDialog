@@ -1,0 +1,20 @@
+{
+  "id": "test_simple_dialog",
+  "title": "Simple Dialog Test",
+  "description": "A minimal test dialog to check basic rendering",
+  "start": "start",
+  "entries": [
+    {
+      "id": "start",
+      "speaker": {"translate": "dialog.speaker.system"},
+      "text": "This is a simple test dialog. If you can see this, the dialog box is rendering correctly!",
+      "next": "end"
+    },
+    {
+      "id": "end",
+      "speaker": {"translate": "dialog.speaker.system"},
+      "text": "Test complete. Please verify the dialog box is visible on screen.",
+      "command": "tellraw @a {\"text\":\"Dialog box rendering test successful!\"}"
+    }
+  ]
+}

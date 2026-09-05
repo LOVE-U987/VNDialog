@@ -56,6 +56,10 @@ public class PortraitAnimationData {
     @SerializedName("easing")
     private String easing = "EASE_OUT_CUBIC";
 
+    // 新增：循环动画支持
+    @SerializedName("loop")
+    private boolean loop = false;
+
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
 
@@ -94,4 +98,6 @@ public class PortraitAnimationData {
     public void setDurationMs(int v) { this.durationMs = v; }
     public void setDelayMs(int v) { this.delayMs = v; }
     public void setEasing(String v) { this.easing = v; }
+    public boolean isLoop() { return loop; }
+    public void setLoop(boolean loop) { this.loop = loop; }
 }

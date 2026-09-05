@@ -43,6 +43,9 @@ public class PortraitInfo {
     @SerializedName("animations")
     private List<PortraitAnimationData> animations; // JSON 驱动动画列表
 
+    @SerializedName("animation_frames")
+    private AnimationFrameData animationFrameData; // 序列帧动画数据
+
     public PortraitInfo() {
     }
 
@@ -78,4 +81,6 @@ public class PortraitInfo {
     public void setAnchor(String anchor) { this.anchor = anchor; }
     public List<PortraitAnimationData> getAnimations() { return animations; }
     public void setAnimations(List<PortraitAnimationData> animations) { this.animations = animations; }
+    public AnimationFrameData getAnimationFrameData() { return animationFrameData; }
+    public void setAnimationFrameData(AnimationFrameData animationFrameData) { this.animationFrameData = animationFrameData; }
 }
